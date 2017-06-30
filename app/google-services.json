@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "973695784671",
+    "firebase_url": "https://make-a-plan-15f2f.firebaseio.com",
+    "project_id": "make-a-plan-15f2f",
+    "storage_bucket": "make-a-plan-15f2f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:973695784671:android:fb9cca57fda73d0c",
+        "android_client_info": {
+          "package_name": "tcd.android.com.makeaplan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "973695784671-785mjc4omc69j9tmj5hjur6qmf9f8v3s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "tcd.android.com.makeaplan",
+            "certificate_hash": "deae500fb6891cc51baffa3a809c378fa16a0d17"
+          }
+        },
+        {
+          "client_id": "973695784671-kn5sga6lb7ubsnnppu7imlunnf6emllu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrixtqJ10sf7a5BucrVESXdTDIVU2USss"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "973695784671-kn5sga6lb7ubsnnppu7imlunnf6emllu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
