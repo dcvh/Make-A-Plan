@@ -8,46 +8,92 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.auth.ResultCodes;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+
+import tcd.android.com.makeaplan.Adapter.PlanListAdapter;
+import tcd.android.com.makeaplan.Entities.Plan;
+import tcd.android.com.makeaplan.Entities.User;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private static final int RC_SIGN_IN = 1;
 
-    private FirebaseAuth mAuth;
+    // firebase components
+    private FirebaseDatabase mFirebaseDatabase;
+    private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
+    private DatabaseReference mUserDatabaseRef;
+    private FirebaseStorage mFirebaseStorage;
+
+    // plan list view components
+    private ListView planListView;
+    private PlanListAdapter planListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initializeFirebaseComponents();
+
+        planListView = (ListView) findViewById(R.id.plan_list_view);
+        planListAdapter = new PlanListAdapter(this);
+        planListView.setAdapter(planListAdapter);
+        planListAdapter.add(new Plan("University of Science", "03/07/2017", "Personal"));
+        planListAdapter.add(new Plan("University of Technology", "04/07/2017", "Group"));
+
         // firebase authentication
-        mAuth = FirebaseAuth.getInstance();
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
-
+                    String ownerId = user.getUid();
+                    // write user to database
+                    mUserDatabaseRef.child(user.getUid())
+                            .setValue(new User(user.getDisplayName(), user.getEmail()))
+                            .addOnCompleteListener(MainActivity.this, new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Log.d(TAG, "onComplete: Add user info to database successfully");
+                                    }
+                                    else {
+                                        Log.d(TAG, "onComplete: Failed to add user info to database");
+                                    }
+                                }
+                            });
                 } else {
-
                     startActivityForResult(
                             AuthUI.getInstance()
                                     .createSignInIntentBuilder()
                                     .setIsSmartLockEnabled(false)
                                     .setProviders(
-                                            Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build()))
+                                            Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
+                                                new AuthUI.IdpConfig.Builder(AuthUI.FACEBOOK_PROVIDER).build()))
                                     .build(),
                             RC_SIGN_IN);
                 }
@@ -58,14 +104,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        mAuth.addAuthStateListener(mAuthStateListener);
+        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
     }
 
     @Override
     public void onStop() {
         super.onStop();
         if (mAuthStateListener != null) {
-            mAuth.removeAuthStateListener(mAuthStateListener);
+            mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
         }
     }
 
@@ -98,6 +144,14 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Signed in", Toast.LENGTH_SHORT).show();
                 return;
             } else {
+                if (resultCode == ResultCodes.CANCELED) {
+                    // User cancelled
+                    Toast.makeText(MainActivity.this,
+                            getResources().getString(R.string.cancel_sign_in_message),
+                            Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+
                 // Sign in failed
                 if (response == null) {
                     // User pressed back button
@@ -121,5 +175,15 @@ public class MainActivity extends AppCompatActivity {
 
             //showSnackbar(R.string.unknown_sign_in_response);
         }
+    }
+
+    void initializeFirebaseComponents() {
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseStorage = FirebaseStorage.getInstance();
+        mUserDatabaseRef = mFirebaseDatabase.getReference().child("users");
+
+        mFirebaseAuth = FirebaseAuth.getInstance();
+
     }
 }
