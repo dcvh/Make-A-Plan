@@ -1,15 +1,18 @@
 package tcd.android.com.makeaplan.Entities;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 /**
  * Created by ADMIN on 07/05/2017.
  */
 
 public class Plan {
     private String name;
-    private String date;
+    private Calendar date;
     private String tag;
 
-    public Plan(String name, String date, String tag) {
+    public Plan(String name, Calendar date, String tag) {
         this.name = name;
         this.date = date;
         this.tag = tag;
@@ -23,11 +26,15 @@ public class Plan {
         this.name = name;
     }
 
-    public String getDate() {
-        return date;
+    public String getDateString() {
+        return getFormattedDate(date, "dd/MM/yyyy");
     }
 
-    public void setDate(String date) {
+    public Calendar getDate() {
+        return this.date;
+    }
+
+    public void setDate(Calendar date) {
         this.date = date;
     }
 
@@ -38,4 +45,9 @@ public class Plan {
     public void setTag(String tag) {
         this.tag = tag;
     }
+
+    String getFormattedDate(Calendar date, String format) {
+        return new SimpleDateFormat(format).format(date.getTime());
+    }
+
 }

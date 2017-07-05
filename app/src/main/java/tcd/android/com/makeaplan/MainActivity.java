@@ -26,6 +26,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.Arrays;
+import java.util.Calendar;
 
 import tcd.android.com.makeaplan.Adapter.PlanListAdapter;
 import tcd.android.com.makeaplan.Entities.Plan;
@@ -57,11 +58,19 @@ public class MainActivity extends AppCompatActivity {
         planListView = (ListView) findViewById(R.id.plan_list_view);
         planListAdapter = new PlanListAdapter(this);
         planListView.setAdapter(planListAdapter);
-        planListAdapter.add(new Plan("University of Science", "03/07/2017", "Personal"));
-        planListAdapter.add(new Plan("University of Technology", "04/07/2017", "Group"));
+        planListAdapter.add(new Plan("University of Science", Calendar.getInstance(), "Personal"));
+        planListAdapter.add(new Plan("University of Technology", Calendar.getInstance(), "Group"));
 
         FloatingActionButton personalFAB = (FloatingActionButton) findViewById(R.id.fab_personal);
         personalFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        FloatingActionButton groupFAB = (FloatingActionButton) findViewById(R.id.fab_group);
+        groupFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, AddGroupPlanActivity.class);

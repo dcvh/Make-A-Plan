@@ -1,14 +1,26 @@
 <resources>
     <string name="app_name">Make A Plan</string>
 
+    <!--message-->
     <string name="cancel_sign_in_message">Sign in canceled</string>
 
+    <!--error-->
+    <string name="name_empty_error">Task name is required. Please enter a valid name.</string>
+
+    <!--button-->
     <string name="sign_out">Sign out</string>
     <string name="cancel">Cancel</string>
+
+    <!--label-->
     <string name="personal">Personal</string>
-    <string name="group">group</string>
-
+    <string name="group">Group</string>
     <string name="task_name_example">e.g. University of Science</string>
-    <string name="title_activity_add_group_plan">abc</string>
+    <string name="due_date">Due date</string>
+    <string name="time">Time</string>
+    <string name="location">Location</string>
 
+    <!--others-->
+
+    <!--key-->
+    <string name="my_api_key" translatable="false">AIzaSyDiUS6uJoZiBILeJJbzLUQBl6kXZhmaUPQ</string>
 </resources>

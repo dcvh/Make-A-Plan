@@ -9,11 +9,12 @@
 
     <ImageView
         android:id="@+id/iv_option_icon"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_gravity="center"
-        android:layout_weight="3"
         android:tint="@android:color/black"
+        android:layout_marginLeft="32dp"
+        android:layout_marginRight="32dp"
         tools:src="@android:drawable/ic_lock_idle_alarm" />
 
     <LinearLayout
