@@ -1,10 +1,14 @@
 <resources>
     <string name="app_name">Make A Plan</string>
 
+    <string name="cancel_sign_in_message">Sign in canceled</string>
+
     <string name="sign_out">Sign out</string>
     <string name="cancel">Cancel</string>
     <string name="personal">Personal</string>
     <string name="group">group</string>
 
-    <string name="cancel_sign_in_message">Sign in canceled</string>
+    <string name="task_name_example">e.g. University of Science</string>
+    <string name="title_activity_add_group_plan">abc</string>
+
 </resources>
