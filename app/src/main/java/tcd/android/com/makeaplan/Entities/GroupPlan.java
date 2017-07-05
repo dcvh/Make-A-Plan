@@ -12,32 +12,59 @@ import java.util.Calendar;
 
 public class GroupPlan extends Plan implements Serializable {
 
-    private Place place;
-    private ArrayList<String> friends;
+    private String owner;
+    private String placeName;
+    private String placeLatLng;
+    private String placeAddress;
+    private ArrayList<String> invitees;
 
-    public GroupPlan(String name, Calendar date, String tag) {
-        super(name, date, tag);
+    public GroupPlan(String name, String date, String time, String tag, String owner) {
+        super(name, date, time, tag);
+        this.owner = owner;
     }
 
-    public GroupPlan(String name, Calendar date, String tag, Place place, ArrayList<String> friends) {
-        super(name, date, tag);
-        this.place = place;
-        this.friends = friends;
+//    public GroupPlan(String name, String date, String time, String tag, Place place, ArrayList<String> invitees) {
+//        super(name, date, time, tag);
+//        this.invitees = invitees;
+//    }
+
+    public String getOwner() {
+        return owner;
     }
 
-    public Place getPlace() {
-        return place;
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 
-    public void setPlace(Place place) {
-        this.place = place;
+    public String getPlaceName() {
+        return placeName;
     }
 
-    public ArrayList<String> getFriends() {
-        return friends;
+    public void setPlaceName(String placeName) {
+        this.placeName = placeName;
     }
 
-    public void setFriends(ArrayList<String> friends) {
-        this.friends = friends;
+    public String getPlaceLatLng() {
+        return placeLatLng;
+    }
+
+    public void setPlaceLatLng(String placeLatLng) {
+        this.placeLatLng = placeLatLng;
+    }
+
+    public String getPlaceAddress() {
+        return placeAddress;
+    }
+
+    public void setPlaceAddress(String placeAddress) {
+        this.placeAddress = placeAddress;
+    }
+
+    public ArrayList<String> getinvitees() {
+        return invitees;
+    }
+
+    public void setinvitees(ArrayList<String> invitees) {
+        this.invitees = invitees;
     }
 }

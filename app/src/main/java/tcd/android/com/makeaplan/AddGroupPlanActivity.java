@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.nfc.TagLostException;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -27,8 +29,12 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.internal.PlaceEntity;
 import com.google.android.gms.location.places.internal.zzy;
 import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -37,24 +43,33 @@ import tcd.android.com.makeaplan.Entities.GroupPlan;
 import tcd.android.com.makeaplan.Entities.GroupPlanOption;
 
 public class AddGroupPlanActivity extends AppCompatActivity {
-
+    private static final String TAG_LOG = "AddGroupPlanActivity";
     private static final int RC_PLACE_PICKER = 1;
 
     // group plan option list view
     private ListView optionListView;
     private GroupPlanOptionListAdapter optionListAdapter;
 
-    private EditText taskNameEditText;
+    // firebase components
+    private FirebaseDatabase firebaseDatabase;
+    private DatabaseReference groupPlanDatabaseRef;
 
-    private GroupPlan groupPlan;
+    // other components
+    private EditText taskNameEditText;
+    private String userId;
+    private GroupPlan groupPlan;            // this contains the result
     private Calendar selectedDate = Calendar.getInstance();
-    private int positionOptionIndex = -1;
+    private int locationOptionIndex = -1;   // this is the index of location option in list view
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_group_plan);
         this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        userId = getIntent().getStringExtra("userId");
+
+        initializeFirebaseComponents();
 
         initializeGroupPlanOptionListView();
         optionListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -67,14 +82,20 @@ public class AddGroupPlanActivity extends AppCompatActivity {
                 } else if (title.equals(getResources().getString(R.string.time))) {
                     choosePlanTime(option);
                 } else if (title.equals(getResources().getString(R.string.location))) {
-                    positionOptionIndex = position;
+                    locationOptionIndex = position;
                     choosePlanLocation();
+                } else if (title.equals(getResources().getString(R.string.invitees))) {
+                    chooseInvitees(option);
                 }
             }
         });
 
         taskNameEditText = (EditText) findViewById(R.id.edt_task_name);
-        groupPlan = new GroupPlan("", Calendar.getInstance(), getResources().getString(R.string.group));
+        groupPlan = new GroupPlan("",
+                getFormattedDate(selectedDate, "dd/MM/yyyy"),
+                getFormattedDate(selectedDate, "hh:mm a"),
+                getResources().getString(R.string.group),
+                userId);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -86,9 +107,9 @@ public class AddGroupPlanActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
                     return;
                 }
-//                Intent resultIntent = new Intent();
-//                resultIntent.putExtra(getResources().getString(R.string.group), groupPlan);
-//                setResult(Activity.RESULT_OK, resultIntent);
+                groupPlan.setName(taskName);
+                // upload to Firebase
+                groupPlanDatabaseRef.push().setValue(groupPlan);
                 finish();
             }
         });
@@ -101,6 +122,11 @@ public class AddGroupPlanActivity extends AppCompatActivity {
             onBackPressed();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void initializeFirebaseComponents() {
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        groupPlanDatabaseRef = firebaseDatabase.getReference().child("groupPlan");
     }
 
     void initializeGroupPlanOptionListView() {
@@ -117,7 +143,10 @@ public class AddGroupPlanActivity extends AppCompatActivity {
                 currentTime, android.R.drawable.ic_lock_idle_alarm));
         // location option
         optionListAdapter.add(new GroupPlanOption(getResources().getString(R.string.location),
-                "University of Science", android.R.drawable.ic_menu_mylocation));
+                "", android.R.drawable.ic_menu_mylocation));
+        // friends option
+        optionListAdapter.add(new GroupPlanOption(getResources().getString(R.string.invitees),
+                "0 invitees", android.R.drawable.ic_menu_myplaces));
     }
 
     String getFormattedDate(Calendar date, String format) {
@@ -133,8 +162,9 @@ public class AddGroupPlanActivity extends AppCompatActivity {
                         selectedDate.set(Calendar.MONTH, month);
                         selectedDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
                         option.setValue(getFormattedDate(selectedDate, "dd/MM/yyyy"));
-                        groupPlan.setDate(selectedDate);
                         ((BaseAdapter)optionListView.getAdapter()).notifyDataSetChanged();
+                        // save it
+                        groupPlan.setDate(getFormattedDate(selectedDate, "dd/MM/yyyy"));
                     }
                 },
                 Calendar.getInstance().get(Calendar.YEAR),
@@ -153,7 +183,8 @@ public class AddGroupPlanActivity extends AppCompatActivity {
                         selectedDate.set(Calendar.MINUTE, minute);
                         option.setValue(getFormattedDate(selectedDate, "hh:mm a"));
                         ((BaseAdapter)optionListView.getAdapter()).notifyDataSetChanged();
-                        groupPlan.setDate(selectedDate);
+                        // save it
+                        groupPlan.setTime(getFormattedDate(selectedDate, "hh:mm a"));
                     }
                 },
                 Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + 1,
@@ -174,17 +205,61 @@ public class AddGroupPlanActivity extends AppCompatActivity {
         }
     }
 
+    private void chooseInvitees(final GroupPlanOption option) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getResources().getString(R.string.invitees));
+
+        // add a checkbox list
+        final String[] friends = {"horse", "cow", "camel", "sheep", "goat"};
+        final boolean[] checkedItems = {false, false, false, false, false};
+        builder.setMultiChoiceItems(friends, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                // user checked or unchecked a box
+            }
+        });
+
+        // add OK and Cancel buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // user clicked OK
+                ArrayList<String> invitees = new ArrayList<String>();
+                int count = 0;
+                for (int i = 0; i < checkedItems.length; i++) {
+                    if (checkedItems[i]){
+                        invitees.add(friends[i]);
+                        count++;
+                    }
+                }
+                groupPlan.setinvitees(invitees);
+                option.setValue(String.valueOf(count) + " invitees");
+                ((BaseAdapter)optionListView.getAdapter()).notifyDataSetChanged();
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case RC_PLACE_PICKER:
                 if (resultCode == RESULT_OK) {
-                    // save the place and display its name in Toast
+                    // get place info
                     Place place = PlacePicker.getPlace(data, AddGroupPlanActivity.this);
-                    groupPlan.setPlace(place);
                     String placeName = String.format("%s", place.getName());
-                    ((GroupPlanOption)optionListView.getAdapter().getItem(positionOptionIndex)).setValue(placeName);
+                    // save it
+                    groupPlan.setPlaceName(placeName);
+                    groupPlan.setPlaceLatLng(String.valueOf(place.getLatLng().latitude) + ","
+                            + String.valueOf(place.getLatLng().latitude));
+                    groupPlan.setPlaceAddress(String.valueOf(place.getAddress()));
+                    // update its info
+                    ((GroupPlanOption)optionListView.getAdapter().getItem(locationOptionIndex)).setValue(placeName);
                     ((BaseAdapter)optionListView.getAdapter()).notifyDataSetChanged();
                 }
                 break;

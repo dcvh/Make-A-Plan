@@ -9,12 +9,14 @@ import java.util.Calendar;
 
 public class Plan {
     private String name;
-    private Calendar date;
+    private String date;
+    private String time;
     private String tag;
 
-    public Plan(String name, Calendar date, String tag) {
+    public Plan(String name, String date, String time, String tag) {
         this.name = name;
         this.date = date;
+        this.time = time;
         this.tag = tag;
     }
 
@@ -26,16 +28,20 @@ public class Plan {
         this.name = name;
     }
 
-    public String getDateString() {
-        return getFormattedDate(date, "dd/MM/yyyy");
+    public String getDate() {
+        return date;
     }
 
-    public Calendar getDate() {
-        return this.date;
-    }
-
-    public void setDate(Calendar date) {
+    public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
     }
 
     public String getTag() {

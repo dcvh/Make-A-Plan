@@ -48,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
     private ListView planListView;
     private PlanListAdapter planListAdapter;
 
+    private String userId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,8 +60,8 @@ public class MainActivity extends AppCompatActivity {
         planListView = (ListView) findViewById(R.id.plan_list_view);
         planListAdapter = new PlanListAdapter(this);
         planListView.setAdapter(planListAdapter);
-        planListAdapter.add(new Plan("University of Science", Calendar.getInstance(), "Personal"));
-        planListAdapter.add(new Plan("University of Technology", Calendar.getInstance(), "Group"));
+        planListAdapter.add(new Plan("University of Science", "03/07/2017", "11:21 PM", "Personal"));
+        planListAdapter.add(new Plan("University of Technology", "04/07/2017", "11:21 AM", "Group"));
 
         FloatingActionButton personalFAB = (FloatingActionButton) findViewById(R.id.fab_personal);
         personalFAB.setOnClickListener(new View.OnClickListener() {
@@ -74,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, AddGroupPlanActivity.class);
+                intent.putExtra("userId", userId);
                 startActivity(intent);
             }
         });
@@ -84,9 +87,9 @@ public class MainActivity extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
-                    String ownerId = user.getUid();
+                    userId = user.getUid();
                     // write user to database
-                    mUserDatabaseRef.child(user.getUid())
+                    mUserDatabaseRef.child(userId)
                             .setValue(new User(user.getDisplayName(), user.getEmail()))
                             .addOnCompleteListener(MainActivity.this, new OnCompleteListener<Void>() {
                                 @Override

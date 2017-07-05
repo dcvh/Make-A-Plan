@@ -33,7 +33,7 @@ public class PlanListAdapter extends ArrayAdapter<Plan> {
 
         Plan plan = getItem(position);
         ((TextView)convertView.findViewById(R.id.tv_plan_name)).setText(plan.getName());
-        ((TextView)convertView.findViewById(R.id.tv_plan_date)).setText(plan.getDateString());
+        ((TextView)convertView.findViewById(R.id.tv_plan_date)).setText(plan.getDate());
         ((TextView)convertView.findViewById(R.id.tv_plan_tag)).setText(plan.getTag());
 
         return convertView;
