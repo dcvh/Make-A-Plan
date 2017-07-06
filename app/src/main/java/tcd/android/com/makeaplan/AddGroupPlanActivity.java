@@ -29,14 +29,19 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.internal.PlaceEntity;
 import com.google.android.gms.location.places.internal.zzy;
 import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 
 import tcd.android.com.makeaplan.Adapter.GroupPlanOptionListAdapter;
 import tcd.android.com.makeaplan.Entities.GroupPlan;
@@ -52,6 +57,7 @@ public class AddGroupPlanActivity extends AppCompatActivity {
 
     // firebase components
     private FirebaseDatabase firebaseDatabase;
+    private DatabaseReference userDatabaseRef;
     private DatabaseReference groupPlanDatabaseRef;
 
     // other components
@@ -60,6 +66,12 @@ public class AddGroupPlanActivity extends AppCompatActivity {
     private GroupPlan groupPlan;            // this contains the result
     private Calendar selectedDate = Calendar.getInstance();
     private int locationOptionIndex = -1;   // this is the index of location option in list view
+
+    // manage friends list
+    HashMap<String, String> friendsList;
+    String[] friendsIdList;
+    String[] friendsNameList;
+    boolean[] checkedItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +109,8 @@ public class AddGroupPlanActivity extends AppCompatActivity {
                 getResources().getString(R.string.group),
                 userId);
 
+        retrieveFriendsListFromFirebase();
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,8 +122,15 @@ public class AddGroupPlanActivity extends AppCompatActivity {
                     return;
                 }
                 groupPlan.setName(taskName);
-                // upload to Firebase
-                groupPlanDatabaseRef.push().setValue(groupPlan);
+                // get group plan ID
+                String groupPlanId = groupPlanDatabaseRef.push().getKey();
+                // upload data to Firebase
+                groupPlanDatabaseRef.child(groupPlanId).setValue(groupPlan);
+                createPlanInSingleInvitee(userId, groupPlanId);
+                for (String inviteeId : groupPlan.getinvitees().keySet()) {
+                    createPlanInSingleInvitee(inviteeId, groupPlanId);
+                }
+
                 finish();
             }
         });
@@ -126,6 +147,7 @@ public class AddGroupPlanActivity extends AppCompatActivity {
 
     private void initializeFirebaseComponents() {
         firebaseDatabase = FirebaseDatabase.getInstance();
+        userDatabaseRef = firebaseDatabase.getReference().child("users");
         groupPlanDatabaseRef = firebaseDatabase.getReference().child("groupPlan");
     }
 
@@ -210,9 +232,8 @@ public class AddGroupPlanActivity extends AppCompatActivity {
         builder.setTitle(getResources().getString(R.string.invitees));
 
         // add a checkbox list
-        final String[] friends = {"horse", "cow", "camel", "sheep", "goat"};
-        final boolean[] checkedItems = {false, false, false, false, false};
-        builder.setMultiChoiceItems(friends, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
+        builder.setMultiChoiceItems(friendsNameList, checkedItems,
+                new DialogInterface.OnMultiChoiceClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                 // user checked or unchecked a box
@@ -224,11 +245,11 @@ public class AddGroupPlanActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // user clicked OK
-                ArrayList<String> invitees = new ArrayList<String>();
+                HashMap<String, String> invitees = new HashMap<String, String>();
                 int count = 0;
                 for (int i = 0; i < checkedItems.length; i++) {
                     if (checkedItems[i]){
-                        invitees.add(friends[i]);
+                        invitees.put(friendsIdList[i], friendsNameList[i]);
                         count++;
                     }
                 }
@@ -242,6 +263,41 @@ public class AddGroupPlanActivity extends AppCompatActivity {
         // create and show the alert dialog
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    private void retrieveFriendsListFromFirebase() {
+        userDatabaseRef.child(userId).child("friends").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                GenericTypeIndicator<HashMap<String, String>> t = new GenericTypeIndicator<HashMap<String, String>>() {};
+                friendsList = dataSnapshot.getValue(t);
+                friendsIdList = friendsList.keySet().toArray(new String[0]);
+                friendsNameList = friendsList.values().toArray(new String[0]);
+                checkedItems = new boolean[friendsList.size()];         // default value is false
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
+    }
+
+    private void createPlanInSingleInvitee(final String inviteeId, final String groupPlanId) {
+        userDatabaseRef.child(inviteeId).child("plans").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // get current plans list from Firebase
+                GenericTypeIndicator<HashMap<String, String>> t = new GenericTypeIndicator<HashMap<String, String>>() {};
+                HashMap<String, String> plansRef = dataSnapshot.getValue(t);
+                if (plansRef == null) {
+                    plansRef = new HashMap<String, String>();
+                }
+                // put new plan to map
+                plansRef.put(groupPlanId, getResources().getString(R.string.group));
+                // and update it to Firebase
+                userDatabaseRef.child(inviteeId).child("plans").setValue(plansRef);
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
     }
 
     @Override

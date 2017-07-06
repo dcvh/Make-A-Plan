@@ -5,6 +5,7 @@ import com.google.android.gms.location.places.Place;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 
 /**
  * Created by ADMIN on 05/07/2017.
@@ -16,7 +17,7 @@ public class GroupPlan extends Plan implements Serializable {
     private String placeName;
     private String placeLatLng;
     private String placeAddress;
-    private ArrayList<String> invitees;
+    private HashMap<String, String> invitees;
 
     public GroupPlan(String name, String date, String time, String tag, String owner) {
         super(name, date, time, tag);
@@ -60,11 +61,11 @@ public class GroupPlan extends Plan implements Serializable {
         this.placeAddress = placeAddress;
     }
 
-    public ArrayList<String> getinvitees() {
+    public HashMap<String, String> getinvitees() {
         return invitees;
     }
 
-    public void setinvitees(ArrayList<String> invitees) {
+    public void setinvitees(HashMap<String, String> invitees) {
         this.invitees = invitees;
     }
 }

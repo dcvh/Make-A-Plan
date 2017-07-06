@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private ListView planListView;
     private PlanListAdapter planListAdapter;
 
-    private String userId;
+    private String userId = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,32 +86,33 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    userId = user.getUid();
-                    // write user to database
-                    mUserDatabaseRef.child(userId)
-                            .setValue(new User(user.getDisplayName(), user.getEmail()))
-                            .addOnCompleteListener(MainActivity.this, new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()) {
-                                        Log.d(TAG, "onComplete: Add user info to database successfully");
-                                    }
-                                    else {
-                                        Log.d(TAG, "onComplete: Failed to add user info to database");
-                                    }
-                                }
-                            });
-                } else {
+                if (user == null) {
                     startActivityForResult(
                             AuthUI.getInstance()
                                     .createSignInIntentBuilder()
                                     .setIsSmartLockEnabled(false)
                                     .setProviders(
                                             Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
-                                                new AuthUI.IdpConfig.Builder(AuthUI.FACEBOOK_PROVIDER).build()))
+                                                    new AuthUI.IdpConfig.Builder(AuthUI.FACEBOOK_PROVIDER).build()))
                                     .build(),
                             RC_SIGN_IN);
+                } else if (userId == null) {
+                    userId = user.getUid();
+                    // save user to database if this is a new user
+                    if (mUserDatabaseRef.child(userId) == null) {
+                        mUserDatabaseRef.child(userId)
+                                .setValue(new User(user.getDisplayName(), user.getEmail()))
+                                .addOnCompleteListener(MainActivity.this, new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            Log.d(TAG, "onComplete: Add user info to database successfully");
+                                        } else {
+                                            Log.d(TAG, "onComplete: Failed to add user info to database");
+                                        }
+                                    }
+                                });
+                    }
                 }
             }
         };
