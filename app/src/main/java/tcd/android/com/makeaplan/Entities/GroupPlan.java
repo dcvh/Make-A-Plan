@@ -19,6 +19,8 @@ public class GroupPlan extends Plan implements Serializable {
     private String placeAddress;
     private HashMap<String, String> invitees;
 
+    public GroupPlan() {}
+
     public GroupPlan(String name, String date, String time, String tag, String owner) {
         super(name, date, time, tag);
         this.owner = owner;

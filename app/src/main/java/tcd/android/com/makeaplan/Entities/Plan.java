@@ -13,6 +13,8 @@ public class Plan {
     private String time;
     private String tag;
 
+    public Plan() {}
+
     public Plan(String name, String date, String time, String tag) {
         this.name = name;
         this.date = date;

@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -21,14 +22,23 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 import tcd.android.com.makeaplan.Adapter.PlanListAdapter;
+import tcd.android.com.makeaplan.Entities.GroupPlan;
 import tcd.android.com.makeaplan.Entities.Plan;
 import tcd.android.com.makeaplan.Entities.User;
 
@@ -42,27 +52,27 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private DatabaseReference mUserDatabaseRef;
+    private DatabaseReference mGroupPlanDatabaseRef;
     private FirebaseStorage mFirebaseStorage;
+    private ChildEventListener mChildEventListener;
 
     // plan list view components
     private ListView planListView;
     private PlanListAdapter planListAdapter;
 
     private String userId = null;
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initializeBasicComponents();
+        initializeFirebaseAuthentication();
         initializeFirebaseComponents();
 
-        planListView = (ListView) findViewById(R.id.plan_list_view);
-        planListAdapter = new PlanListAdapter(this);
-        planListView.setAdapter(planListAdapter);
-        planListAdapter.add(new Plan("University of Science", "03/07/2017", "11:21 PM", "Personal"));
-        planListAdapter.add(new Plan("University of Technology", "04/07/2017", "11:21 AM", "Group"));
-
+        // personal plan action
         FloatingActionButton personalFAB = (FloatingActionButton) findViewById(R.id.fab_personal);
         personalFAB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
+        // group plan action
         FloatingActionButton groupFAB = (FloatingActionButton) findViewById(R.id.fab_group);
         groupFAB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,42 +90,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-        // firebase authentication
-        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user == null) {
-                    startActivityForResult(
-                            AuthUI.getInstance()
-                                    .createSignInIntentBuilder()
-                                    .setIsSmartLockEnabled(false)
-                                    .setProviders(
-                                            Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
-                                                    new AuthUI.IdpConfig.Builder(AuthUI.FACEBOOK_PROVIDER).build()))
-                                    .build(),
-                            RC_SIGN_IN);
-                } else if (userId == null) {
-                    userId = user.getUid();
-                    // save user to database if this is a new user
-                    if (mUserDatabaseRef.child(userId) == null) {
-                        mUserDatabaseRef.child(userId)
-                                .setValue(new User(user.getDisplayName(), user.getEmail()))
-                                .addOnCompleteListener(MainActivity.this, new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()) {
-                                            Log.d(TAG, "onComplete: Add user info to database successfully");
-                                        } else {
-                                            Log.d(TAG, "onComplete: Failed to add user info to database");
-                                        }
-                                    }
-                                });
-                    }
-                }
-            }
-        };
     }
 
     @Override
@@ -156,10 +130,8 @@ public class MainActivity extends AppCompatActivity {
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        // RC_SIGN_IN is the request code you passed into startActivityForResult(...) when starting the sign in flow.
         if (requestCode == RC_SIGN_IN) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
-
             // Successfully signed in
             if (resultCode == ResultCodes.OK) {
                 Toast.makeText(this, "Signed in", Toast.LENGTH_SHORT).show();
@@ -172,39 +144,121 @@ public class MainActivity extends AppCompatActivity {
                             Toast.LENGTH_SHORT).show();
                     finish();
                 }
-
-                // Sign in failed
-                if (response == null) {
-                    // User pressed back button
-                    //showSnackbar(R.string.sign_in_cancelled);
-                    Toast.makeText(this, "Sign in cancelled", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (response.getErrorCode() == ErrorCodes.NO_NETWORK) {
-                    //showSnackbar(R.string.no_internet_connection);
-                    Toast.makeText(this, "No network", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (response.getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
-                    //showSnackbar(R.string.unknown_error);
-                    Toast.makeText(this, "Unknown error", Toast.LENGTH_SHORT).show();
-                    return;
-                }
             }
-
-            //showSnackbar(R.string.unknown_sign_in_response);
         }
     }
 
-    void initializeFirebaseComponents() {
+    private void initializeBasicComponents() {
+        planListView = (ListView) findViewById(R.id.plan_list_view);
+        planListAdapter = new PlanListAdapter(this);
+        planListView.setAdapter(planListAdapter);
+        planListAdapter.add(new Plan("University of Science", "03/07/2017", "11:21 PM", "Personal"));
+        planListAdapter.add(new Plan("University of Technology", "04/07/2017", "11:21 AM", "Group"));
+    }
+
+    private void initializeFirebaseComponents() {
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseStorage = FirebaseStorage.getInstance();
         mUserDatabaseRef = mFirebaseDatabase.getReference().child("users");
+        mGroupPlanDatabaseRef = mFirebaseDatabase.getReference().child("groupPlan");
 
         mFirebaseAuth = FirebaseAuth.getInstance();
 
+    }
+
+    private void initializeFirebaseAuthentication() {
+        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                if (firebaseUser == null) {
+                    onSignedOutCleanUp();
+                    startActivityForResult(
+                            AuthUI.getInstance()
+                                    .createSignInIntentBuilder()
+                                    .setIsSmartLockEnabled(false)
+                                    .setProviders(
+                                            Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
+                                                    new AuthUI.IdpConfig.Builder(AuthUI.FACEBOOK_PROVIDER).build()))
+                                    .build(),
+                            RC_SIGN_IN);
+                } else {
+                    if (userId == null) {
+                        userId = firebaseUser.getUid();
+                        // save user to database if this is a new user
+                        if (mUserDatabaseRef.child(userId) == null) {
+                            mUserDatabaseRef.child(userId)
+                                    .setValue(new User(firebaseUser.getDisplayName(), firebaseUser.getEmail()));
+                        }
+                        // retrieve user info
+                        mUserDatabaseRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                user = dataSnapshot.getValue(User.class);
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                            }
+                        });
+                    }
+                    onSignedInInitialize();
+                }
+            }
+        };
+    }
+
+    private void onSignedInInitialize() {
+        if (mChildEventListener == null) {
+            mChildEventListener = new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    planListAdapter.clear();
+                    createPlanList(dataSnapshot);
+                }
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                    planListAdapter.clear();
+                    createPlanList(dataSnapshot);
+                }
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                    planListAdapter.clear();
+                    createPlanList(dataSnapshot);
+                }
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+                @Override
+                public void onCancelled(DatabaseError databaseError) {}
+            };
+            mUserDatabaseRef.child(userId).child("plans").addChildEventListener(mChildEventListener);
+        }
+    }
+
+    private void onSignedOutCleanUp() {
+        if (mChildEventListener != null) {
+            mUserDatabaseRef.child(userId).child("plans").removeEventListener(mChildEventListener);
+            mChildEventListener = null;
+        }
+        planListAdapter.clear();
+    }
+
+    private void createPlanList(DataSnapshot dataSnapshot) {
+        // get the plan
+        if (dataSnapshot.getValue(String.class).equals(getResources().getString(R.string.group))) {
+            mGroupPlanDatabaseRef.child(dataSnapshot.getKey())
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            GroupPlan groupPlan = dataSnapshot.getValue(GroupPlan.class);
+                            planListAdapter.add(groupPlan);
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                        }
+                    });
+        }
     }
 }
