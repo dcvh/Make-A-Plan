@@ -6,8 +6,10 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.nfc.TagLostException;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -60,12 +62,15 @@ public class AddGroupPlanActivity extends AppCompatActivity {
     private DatabaseReference userDatabaseRef;
     private DatabaseReference groupPlanDatabaseRef;
 
-    // other components
     private EditText taskNameEditText;
+
+    // other variables
     private String userId;
     private GroupPlan groupPlan;            // this contains the result
     private Calendar selectedDate = Calendar.getInstance();
     private int locationOptionIndex = -1;   // this is the index of location option in list view
+    private String dateFormatPref;
+    private String timeFormatPref;
 
     // manage friends list
     HashMap<String, String> friendsList;
@@ -79,11 +84,11 @@ public class AddGroupPlanActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_group_plan);
         this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        userId = getIntent().getStringExtra("userId");
-
+        initializeBasicComponents();
         initializeFirebaseComponents();
-
         initializeGroupPlanOptionListView();
+        retrieveFriendsListFromFirebase();
+
         optionListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -102,14 +107,6 @@ public class AddGroupPlanActivity extends AppCompatActivity {
             }
         });
 
-        taskNameEditText = (EditText) findViewById(R.id.edt_task_name);
-        groupPlan = new GroupPlan("",
-                getFormattedDate(selectedDate, "dd/MM/yyyy"),
-                getFormattedDate(selectedDate, "hh:mm a"),
-                getResources().getString(R.string.group),
-                userId);
-
-        retrieveFriendsListFromFirebase();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -145,22 +142,39 @@ public class AddGroupPlanActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void initializeBasicComponents() {
+        userId = getIntent().getStringExtra("userId");
+
+        // get chosen format from Settings
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        dateFormatPref = sharedPref.getString(SettingsActivity.KEY_PREF_DATE_FORMAT, "");
+        timeFormatPref = sharedPref.getString(SettingsActivity.KEY_PREF_TIME_FORMAT, "");
+
+        taskNameEditText = (EditText) findViewById(R.id.edt_task_name);
+
+        groupPlan = new GroupPlan("",
+                getFormattedDate(selectedDate, dateFormatPref),
+                getFormattedDate(selectedDate, timeFormatPref),
+                getResources().getString(R.string.group),
+                userId);
+    }
+
     private void initializeFirebaseComponents() {
         firebaseDatabase = FirebaseDatabase.getInstance();
         userDatabaseRef = firebaseDatabase.getReference().child("users");
         groupPlanDatabaseRef = firebaseDatabase.getReference().child("groupPlan");
     }
 
-    void initializeGroupPlanOptionListView() {
+    private void initializeGroupPlanOptionListView() {
         optionListView = (ListView) findViewById(R.id.lv_group_plan_option);
         optionListAdapter = new GroupPlanOptionListAdapter(this);
         optionListView.setAdapter(optionListAdapter);
         // due date option
-        String today = getFormattedDate(selectedDate, "dd/MM/yyyy");
+        String today = getFormattedDate(selectedDate, dateFormatPref);
         optionListAdapter.add(new GroupPlanOption(getResources().getString(R.string.due_date),
                 today, android.R.drawable.ic_menu_today));
         // time option
-        String currentTime = getFormattedDate(selectedDate, "hh:mm a");
+        String currentTime = getFormattedDate(selectedDate, timeFormatPref);
         optionListAdapter.add(new GroupPlanOption(getResources().getString(R.string.time),
                 currentTime, android.R.drawable.ic_lock_idle_alarm));
         // location option
@@ -175,7 +189,7 @@ public class AddGroupPlanActivity extends AppCompatActivity {
         return new SimpleDateFormat(format).format(date.getTime());
     }
 
-    void choosePlanDueDate(final GroupPlanOption option) {
+    private void choosePlanDueDate(final GroupPlanOption option) {
         DatePickerDialog datePickerDialog = new DatePickerDialog(AddGroupPlanActivity.this,
                 new DatePickerDialog.OnDateSetListener() {
                     @Override
@@ -183,10 +197,10 @@ public class AddGroupPlanActivity extends AppCompatActivity {
                         selectedDate.set(Calendar.YEAR, year);
                         selectedDate.set(Calendar.MONTH, month);
                         selectedDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                        option.setValue(getFormattedDate(selectedDate, "dd/MM/yyyy"));
+                        option.setValue(getFormattedDate(selectedDate, dateFormatPref));
                         ((BaseAdapter)optionListView.getAdapter()).notifyDataSetChanged();
                         // save it
-                        groupPlan.setDate(getFormattedDate(selectedDate, "dd/MM/yyyy"));
+                        groupPlan.setDate(getFormattedDate(selectedDate, dateFormatPref));
                     }
                 },
                 Calendar.getInstance().get(Calendar.YEAR),
@@ -196,17 +210,17 @@ public class AddGroupPlanActivity extends AppCompatActivity {
         datePickerDialog.show();
     }
 
-    void choosePlanTime(final GroupPlanOption option) {
+    private void choosePlanTime(final GroupPlanOption option) {
         TimePickerDialog timePickerDialog = new TimePickerDialog(AddGroupPlanActivity.this,
                 new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                         selectedDate.set(Calendar.HOUR_OF_DAY, hourOfDay);
                         selectedDate.set(Calendar.MINUTE, minute);
-                        option.setValue(getFormattedDate(selectedDate, "hh:mm a"));
+                        option.setValue(getFormattedDate(selectedDate, timeFormatPref));
                         ((BaseAdapter)optionListView.getAdapter()).notifyDataSetChanged();
                         // save it
-                        groupPlan.setTime(getFormattedDate(selectedDate, "hh:mm a"));
+                        groupPlan.setTime(getFormattedDate(selectedDate, timeFormatPref));
                     }
                 },
                 Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + 1,
@@ -215,7 +229,7 @@ public class AddGroupPlanActivity extends AppCompatActivity {
         timePickerDialog.show();
     }
 
-    void choosePlanLocation() {
+    private void choosePlanLocation() {
         // picking a place (using google Places API)
         PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
         try {
