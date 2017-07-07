@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -88,6 +89,18 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, AddGroupPlanActivity.class);
                 intent.putExtra("userId", userId);
                 startActivity(intent);
+            }
+        });
+        // each plan action
+        planListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Plan plan = (Plan) parent.getAdapter().getItem(position);
+                if (plan.getTag().equals(getResources().getString(R.string.group))) {
+                    Intent groupPlanDetailIntent = new Intent(MainActivity.this, GroupPlanDetailActivity.class);
+                    groupPlanDetailIntent.putExtra(getResources().getString(R.string.group), (GroupPlan)plan);
+                    startActivity(groupPlanDetailIntent);
+                }
             }
         });
     }
@@ -214,7 +227,6 @@ public class MainActivity extends AppCompatActivity {
             mChildEventListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                    planListAdapter.clear();
                     createPlanList(dataSnapshot);
                 }
                 @Override

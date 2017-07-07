@@ -185,7 +185,7 @@ public class AddGroupPlanActivity extends AppCompatActivity {
                 "0 invitees", android.R.drawable.ic_menu_myplaces));
     }
 
-    String getFormattedDate(Calendar date, String format) {
+    private String getFormattedDate(Calendar date, String format) {
         return new SimpleDateFormat(format).format(date.getTime());
     }
 
@@ -326,7 +326,7 @@ public class AddGroupPlanActivity extends AppCompatActivity {
                     // save it
                     groupPlan.setPlaceName(placeName);
                     groupPlan.setPlaceLatLng(String.valueOf(place.getLatLng().latitude) + ","
-                            + String.valueOf(place.getLatLng().latitude));
+                            + String.valueOf(place.getLatLng().longitude));
                     groupPlan.setPlaceAddress(String.valueOf(place.getAddress()));
                     // update its info
                     ((GroupPlanOption)optionListView.getAdapter().getItem(locationOptionIndex)).setValue(placeName);

@@ -11,6 +11,7 @@
     <string name="sign_out">Sign out</string>
     <string name="settings">Settings</string>
     <string name="cancel">Cancel</string>
+    <string name="navigate">Navigate</string>
 
     <!--labels-->
     <string name="personal">Personal</string>
@@ -35,12 +36,14 @@
         <item>MM/dd/yyyy</item>
         <item>yyyy/MM/dd</item>
         <item>MMM d, yyyy</item>
+        <item>EEEE, MMM d</item>
     </string-array>
     <string-array name="pref_date_format_option_values">
         <item>dd/MM/yyyy</item>
         <item>MM/dd/yyyy</item>
         <item>yyyy/MM/dd</item>
         <item>MMM d, yyyy</item>
+        <item>EEEE, MMM d</item>
     </string-array>
     <string name="pref_date_format_default">dd/MM/yyyy</string>
 

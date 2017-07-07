@@ -1,5 +1,6 @@
 package tcd.android.com.makeaplan.Entities;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -7,7 +8,7 @@ import java.util.Calendar;
  * Created by ADMIN on 07/05/2017.
  */
 
-public class Plan {
+public class Plan implements Serializable {
     private String name;
     private String date;
     private String time;
