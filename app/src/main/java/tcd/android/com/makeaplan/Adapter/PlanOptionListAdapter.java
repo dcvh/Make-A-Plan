@@ -10,20 +10,17 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-
-import tcd.android.com.makeaplan.Entities.GroupPlanOption;
-import tcd.android.com.makeaplan.Entities.Plan;
+import tcd.android.com.makeaplan.Entities.PlanOption;
 import tcd.android.com.makeaplan.R;
 
 /**
  * Created by ADMIN on 05/07/2017.
  */
 
-public class GroupPlanOptionListAdapter extends ArrayAdapter<GroupPlanOption> {
+public class PlanOptionListAdapter extends ArrayAdapter<PlanOption> {
     private Context mContext;
 
-    public GroupPlanOptionListAdapter(@NonNull Context context) {
+    public PlanOptionListAdapter(@NonNull Context context) {
         super(context, 0);
         mContext = context;
     }
@@ -35,7 +32,7 @@ public class GroupPlanOptionListAdapter extends ArrayAdapter<GroupPlanOption> {
             convertView = LayoutInflater.from(mContext).inflate(R.layout.add_group_plan_list_item, null);
         }
 
-        GroupPlanOption option = getItem(position);
+        PlanOption option = getItem(position);
         ((TextView)convertView.findViewById(R.id.tv_option_title)).setText(option.getTitle());
         ((TextView)convertView.findViewById(R.id.tv_option_value)).setText(option.getValue());
         ((ImageView)convertView.findViewById(R.id.iv_option_icon)).setImageResource(option.getDrawableId());

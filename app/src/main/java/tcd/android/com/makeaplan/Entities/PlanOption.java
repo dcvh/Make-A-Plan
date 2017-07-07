@@ -4,12 +4,12 @@ package tcd.android.com.makeaplan.Entities;
  * Created by ADMIN on 05/07/2017.
  */
 
-public class GroupPlanOption {
+public class PlanOption {
     private String title;
     private String value;
     private int drawableId;
 
-    public GroupPlanOption(String title, String value, int drawableId) {
+    public PlanOption(String title, String value, int drawableId) {
         this.title = title;
         this.value = value;
         this.drawableId = drawableId;

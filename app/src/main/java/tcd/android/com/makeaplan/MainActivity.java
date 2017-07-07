@@ -40,6 +40,7 @@ import java.util.Map;
 
 import tcd.android.com.makeaplan.Adapter.PlanListAdapter;
 import tcd.android.com.makeaplan.Entities.GroupPlan;
+import tcd.android.com.makeaplan.Entities.PersonalPlan;
 import tcd.android.com.makeaplan.Entities.Plan;
 import tcd.android.com.makeaplan.Entities.User;
 
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private DatabaseReference mUserDatabaseRef;
     private DatabaseReference mGroupPlanDatabaseRef;
+    private DatabaseReference mPersonalPlanDatabaseRef;
     private FirebaseStorage mFirebaseStorage;
     private ChildEventListener mChildEventListener;
 
@@ -78,7 +80,9 @@ public class MainActivity extends AppCompatActivity {
         personalFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent(MainActivity.this, AddPersonalPlanActivity.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
             }
         });
         // group plan action
@@ -100,6 +104,10 @@ public class MainActivity extends AppCompatActivity {
                     Intent groupPlanDetailIntent = new Intent(MainActivity.this, GroupPlanDetailActivity.class);
                     groupPlanDetailIntent.putExtra(getResources().getString(R.string.group), (GroupPlan)plan);
                     startActivity(groupPlanDetailIntent);
+                } else if (plan.getTag().equals(getResources().getString(R.string.personal))) {
+                    Intent personalPlanDetailIntent = new Intent(MainActivity.this, PersonalPlanDetailActivity.class);
+                    personalPlanDetailIntent.putExtra(getResources().getString(R.string.personal), (PersonalPlan)plan);
+                    startActivity(personalPlanDetailIntent);
                 }
             }
         });
@@ -175,6 +183,7 @@ public class MainActivity extends AppCompatActivity {
         mFirebaseStorage = FirebaseStorage.getInstance();
         mUserDatabaseRef = mFirebaseDatabase.getReference().child("users");
         mGroupPlanDatabaseRef = mFirebaseDatabase.getReference().child("groupPlan");
+        mPersonalPlanDatabaseRef = mFirebaseDatabase.getReference().child("personalPlan");
 
         mFirebaseAuth = FirebaseAuth.getInstance();
 
@@ -227,17 +236,17 @@ public class MainActivity extends AppCompatActivity {
             mChildEventListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                    createPlanList(dataSnapshot);
+                    createPlanInListView(dataSnapshot);
                 }
                 @Override
                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                     planListAdapter.clear();
-                    createPlanList(dataSnapshot);
+                    createPlanInListView(dataSnapshot);
                 }
                 @Override
                 public void onChildRemoved(DataSnapshot dataSnapshot) {
                     planListAdapter.clear();
-                    createPlanList(dataSnapshot);
+                    createPlanInListView(dataSnapshot);
                 }
                 @Override
                 public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
@@ -256,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
         planListAdapter.clear();
     }
 
-    private void createPlanList(DataSnapshot dataSnapshot) {
+    private void createPlanInListView(DataSnapshot dataSnapshot) {
         // get the plan
         if (dataSnapshot.getValue(String.class).equals(getResources().getString(R.string.group))) {
             mGroupPlanDatabaseRef.child(dataSnapshot.getKey())
@@ -268,8 +277,20 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         @Override
-                        public void onCancelled(DatabaseError databaseError) {
+                        public void onCancelled(DatabaseError databaseError) {}
+                    });
+        }
+        else if (dataSnapshot.getValue(String.class).equals(getResources().getString(R.string.personal))) {
+            mPersonalPlanDatabaseRef.child(dataSnapshot.getKey())
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            PersonalPlan personalPlan = dataSnapshot.getValue(PersonalPlan.class);
+                            planListAdapter.add(personalPlan);
                         }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {}
                     });
         }
     }
