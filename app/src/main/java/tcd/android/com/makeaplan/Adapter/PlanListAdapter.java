@@ -1,8 +1,14 @@
 package tcd.android.com.makeaplan.Adapter;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
+import android.support.v4.content.ContextCompat;
+import android.text.AndroidCharacter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +41,13 @@ public class PlanListAdapter extends ArrayAdapter<Plan> {
         ((TextView)convertView.findViewById(R.id.tv_plan_name)).setText(plan.getName());
         ((TextView)convertView.findViewById(R.id.tv_plan_date)).setText(plan.getDate());
         ((TextView)convertView.findViewById(R.id.tv_plan_tag)).setText(plan.getTag());
+
+        if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (plan.getTag().equals(mContext.getResources().getString(R.string.personal))) {
+                ((View) convertView.findViewById(R.id.circle_icon)).setBackgroundTintList(
+                        ColorStateList.valueOf(ContextCompat.getColor(mContext, android.R.color.holo_green_light)));
+            }
+        }
 
         return convertView;
     }

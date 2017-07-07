@@ -34,7 +34,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Task"
+                android:text="@string/task"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="@color/colorAccent" />
 
@@ -53,7 +53,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Group Plan"
+                android:text="@string/group_plan"
                 android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                 android:textColor="@color/colorAccent"
                 android:layout_marginTop="16dp"/>
@@ -79,7 +79,7 @@
         android:id="@+id/fab"
         android:layout_width="54dp"
         android:layout_height="54dp"
-        android:src="@android:drawable/ic_menu_send"
+        android:src="@drawable/ic_send_white_48px"
         android:tint="@android:color/white"
         app:layout_constraintRight_toRightOf="parent"
         android:layout_marginRight="32dp"

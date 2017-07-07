@@ -6,20 +6,26 @@ import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.TimePicker;
 
+import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
@@ -42,7 +48,7 @@ import tcd.android.com.makeaplan.Entities.PlanOption;
 public class AddPersonalPlanActivity extends AppCompatActivity {
 
     private static final String TAG_LOG = "AddPersonalPlanActivity";
-    private static final int RC_PLACE_PICKER = 1;
+    private static final int RC_PHOTO_PICKER = 1;
 
     // personal plan option list view
     private ListView optionListView;
@@ -53,50 +59,58 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
     private DatabaseReference userDatabaseRef;
     private DatabaseReference personalPlanDatabaseRef;
 
-    private EditText taskNameEditText;
-
     // other variables
     private String userId;
     private PersonalPlan personalPlan;            // this contains the result
     private Calendar selectedDate = Calendar.getInstance();
     private String dateFormatPref;
     private String timeFormatPref;
+    ImageView planImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_personal_plan);
         this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        this.getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         initializeBasicComponents();
         initializeFirebaseComponents();
-        initializePersonalPlanOptionListView();
 
-        optionListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        planImageView = (ImageView) findViewById(R.id.iv_personal_plan_image);
+        planImageView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                PlanOption option = ((PlanOption)parent.getAdapter().getItem(position));
-                String title = option.getTitle();
-                if (title.equals(getResources().getString(R.string.due_date))) {
-                    choosePlanDueDate(option);
-                } else if (title.equals(getResources().getString(R.string.time))) {
-                    choosePlanTime(option);
-                }
+            public void onClick(View v) {
+                AlertDialog.Builder adb = new AlertDialog.Builder(AddPersonalPlanActivity.this)
+                        .setMessage(R.string.remove_image_warning)
+                        .setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                planImageView.setVisibility(View.GONE);
+                            }
+                        }).setNegativeButton(getResources().getString(R.string.cancel), null);
+                adb.show();
             }
         });
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.add_personal_plan_menu, menu);
+        return true;
+    }
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String taskName = taskNameEditText.getText().toString();
-                if (taskName.length() == 0) {
-                    Snackbar.make(view, getResources().getString(R.string.name_empty_error), Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                    return;
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case android.R.id.home:
+                onBackPressed();
+                break;
+            case R.id.done_menu:
+                if (validateUserInputs() == false) {
+                    break;
                 }
-                personalPlan.setName(taskName);
                 // get personal plan ID
                 String personalPlanId = personalPlanDatabaseRef.push().getKey();
                 // upload data to Firebase
@@ -104,15 +118,17 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
                 createPlanInSingleInvitee(userId, personalPlanId);
 
                 finish();
-            }
-        });
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            onBackPressed();
+            case R.id.reminder_menu:
+                choosePersonalPlanDateAndTime();
+                break;
+            case R.id.take_photo_menu:
+                break;
+            case R.id.gallery_menu:
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/jpeg");
+                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                startActivityForResult(Intent.createChooser(intent, "Complete action using"), RC_PHOTO_PICKER);
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -125,13 +141,16 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
         dateFormatPref = sharedPref.getString(SettingsActivity.KEY_PREF_DATE_FORMAT, "");
         timeFormatPref = sharedPref.getString(SettingsActivity.KEY_PREF_TIME_FORMAT, "");
 
-        taskNameEditText = (EditText) findViewById(R.id.edt_task_name);
-
+        // initialize base result
         personalPlan = new PersonalPlan("",
                 getFormattedDate(selectedDate, dateFormatPref),
                 getFormattedDate(selectedDate, timeFormatPref),
                 getResources().getString(R.string.personal),
                 userId);
+
+        // update date and time
+        ((TextView)findViewById(R.id.tv_personal_plan_date)).setText(personalPlan.getDate());
+        ((TextView)findViewById(R.id.tv_personal_plan_time)).setText(personalPlan.getTime());
     }
 
     private void initializeFirebaseComponents() {
@@ -140,25 +159,28 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
         personalPlanDatabaseRef = firebaseDatabase.getReference().child("personalPlan");
     }
 
-    private void initializePersonalPlanOptionListView() {
-        optionListView = (ListView) findViewById(R.id.lv_personal_plan_option);
-        optionListAdapter = new PlanOptionListAdapter(this);
-        optionListView.setAdapter(optionListAdapter);
-        // due date option
-        String today = getFormattedDate(selectedDate, dateFormatPref);
-        optionListAdapter.add(new PlanOption(getResources().getString(R.string.due_date),
-                today, android.R.drawable.ic_menu_today));
-        // time option
-        String currentTime = getFormattedDate(selectedDate, timeFormatPref);
-        optionListAdapter.add(new PlanOption(getResources().getString(R.string.time),
-                currentTime, android.R.drawable.ic_lock_idle_alarm));
+    private boolean validateUserInputs() {
+        // validate task name
+        String taskName = ((EditText)findViewById(R.id.edt_task_name)).getText().toString();
+        if (taskName.length() == 0) {
+            Snackbar.make(findViewById(android.R.id.content), getResources().getString(R.string.name_empty_error), Snackbar.LENGTH_LONG)
+                    .show();
+            return false;
+        }
+        personalPlan.setName(taskName);
+        // validate note content
+        String noteContent = ((EditText)findViewById(R.id.edt_note_content)).getText().toString();
+        if (noteContent.length() == 0) {
+            Snackbar.make(findViewById(android.R.id.content), getResources().getString(R.string.note_empty_error), Snackbar.LENGTH_LONG)
+                    .show();
+            return false;
+        }
+        personalPlan.setNote(noteContent);
+        return true;
     }
 
-    private String getFormattedDate(Calendar date, String format) {
-        return new SimpleDateFormat(format).format(date.getTime());
-    }
-
-    private void choosePlanDueDate(final PlanOption option) {
+    private void choosePersonalPlanDateAndTime() {
+        // date picker dialog
         DatePickerDialog datePickerDialog = new DatePickerDialog(AddPersonalPlanActivity.this,
                 new DatePickerDialog.OnDateSetListener() {
                     @Override
@@ -166,10 +188,24 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
                         selectedDate.set(Calendar.YEAR, year);
                         selectedDate.set(Calendar.MONTH, month);
                         selectedDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                        option.setValue(getFormattedDate(selectedDate, dateFormatPref));
-                        ((BaseAdapter)optionListView.getAdapter()).notifyDataSetChanged();
-                        // save it
-                        personalPlan.setDate(getFormattedDate(selectedDate, dateFormatPref));
+                        // time picker dialog
+                        TimePickerDialog timePickerDialog = new TimePickerDialog(AddPersonalPlanActivity.this,
+                                new TimePickerDialog.OnTimeSetListener() {
+                                    @Override
+                                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                                        selectedDate.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                                        selectedDate.set(Calendar.MINUTE, minute);
+                                        // save result
+                                        personalPlan.setDate(getFormattedDate(selectedDate, dateFormatPref));
+                                        personalPlan.setTime(getFormattedDate(selectedDate, timeFormatPref));
+                                        ((TextView)findViewById(R.id.tv_personal_plan_date)).setText(personalPlan.getDate());
+                                        ((TextView)findViewById(R.id.tv_personal_plan_time)).setText(personalPlan.getTime());
+                                    }
+                                },
+                                Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + 1,
+                                Calendar.getInstance().get(Calendar.MINUTE),
+                                false);
+                        timePickerDialog.show();
                     }
                 },
                 Calendar.getInstance().get(Calendar.YEAR),
@@ -179,23 +215,8 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
         datePickerDialog.show();
     }
 
-    private void choosePlanTime(final PlanOption option) {
-        TimePickerDialog timePickerDialog = new TimePickerDialog(AddPersonalPlanActivity.this,
-                new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        selectedDate.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                        selectedDate.set(Calendar.MINUTE, minute);
-                        option.setValue(getFormattedDate(selectedDate, timeFormatPref));
-                        ((BaseAdapter)optionListView.getAdapter()).notifyDataSetChanged();
-                        // save it
-                        personalPlan.setTime(getFormattedDate(selectedDate, timeFormatPref));
-                    }
-                },
-                Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + 1,
-                Calendar.getInstance().get(Calendar.MINUTE),
-                false);
-        timePickerDialog.show();
+    private String getFormattedDate(Calendar date, String format) {
+        return new SimpleDateFormat(format).format(date.getTime());
     }
 
     private void createPlanInSingleInvitee(final String inviteeId, final String personalPlanId) {
@@ -216,5 +237,19 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
             @Override
             public void onCancelled(DatabaseError databaseError) {}
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case RC_PHOTO_PICKER:
+                if (resultCode == RESULT_OK) {
+                    Uri selectedImageUri = data.getData();
+                    planImageView.setImageURI(selectedImageUri);
+                    planImageView.setVisibility(View.VISIBLE);
+                }
+                break;
+        }
     }
 }

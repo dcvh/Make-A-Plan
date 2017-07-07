@@ -6,22 +6,33 @@
 
     <!--errors-->
     <string name="name_empty_error">Task name is required. Please enter a valid name.</string>
+    <string name="note_empty_error">Note content is required. Please enter valid content.</string>
 
     <!--buttons-->
     <string name="sign_out">Sign out</string>
     <string name="settings">Settings</string>
-    <string name="cancel">Cancel</string>
+    <string name="take_photo">Take photo</string>
+    <string name="gallery">Gallery</string>
+    <string name="reminder">Reminder</string>
+    <string name="done">Done</string>
     <string name="navigate">Navigate</string>
+    <string name="yes">Yes</string>
+    <string name="cancel">Cancel</string>
 
     <!--labels-->
     <string name="personal">Personal</string>
     <string name="group">Group</string>
+    <string name="task">Task</string>
+    <string name="group_plan">Group plan</string>
+    <string name="personal_plan">Personal plan</string>
     <string name="task_name_example">e.g. University of Science</string>
     <string name="due_date">Due date</string>
     <string name="time">Time</string>
     <string name="location">Location</string>
     <string name="invitees">Invitees</string>
     <string name="choose_invitees">Choose your invitees</string>
+    <string name="note">Note</string>
+    <string name="remove_image_warning">Are you sure you want to remove this image?</string>
 
     <!--others-->
 

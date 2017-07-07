@@ -9,9 +9,19 @@ import java.util.HashMap;
 
 public class PersonalPlan extends Plan implements Serializable {
 
+    private String note;
+
     public PersonalPlan() {}
 
     public PersonalPlan(String name, String date, String time, String tag, String owner) {
         super(name, date, time, tag);
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 }

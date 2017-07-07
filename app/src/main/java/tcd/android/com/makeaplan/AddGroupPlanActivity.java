@@ -162,17 +162,17 @@ public class AddGroupPlanActivity extends AppCompatActivity {
         // due date option
         String today = getFormattedDate(selectedDate, dateFormatPref);
         optionListAdapter.add(new PlanOption(getResources().getString(R.string.due_date),
-                today, android.R.drawable.ic_menu_today));
+                today, R.drawable.ic_date_black_48px));
         // time option
         String currentTime = getFormattedDate(selectedDate, timeFormatPref);
         optionListAdapter.add(new PlanOption(getResources().getString(R.string.time),
-                currentTime, android.R.drawable.ic_lock_idle_alarm));
+                currentTime, R.drawable.ic_time_black_48px));
         // location option
         optionListAdapter.add(new PlanOption(getResources().getString(R.string.location),
-                "", android.R.drawable.ic_menu_mylocation));
+                "", R.drawable.ic_location_black_48px));
         // friends option
         optionListAdapter.add(new PlanOption(getResources().getString(R.string.invitees),
-                "0 invitees", android.R.drawable.ic_menu_myplaces));
+                "0 invitees", R.drawable.ic_invitee_black_48px));
     }
 
     private String getFormattedDate(Calendar date, String format) {

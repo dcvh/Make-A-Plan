@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/reminder_menu"
+        android:title="@string/reminder"
+        android:icon="@drawable/ic_reminder_white_24px"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/take_photo_menu"
+        android:title="@string/settings"
+        android:icon="@drawable/ic_camera_white_24px"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/gallery_menu"
+        android:title="@string/gallery"
+        android:icon="@drawable/ic_gallery_white_24px"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/done_menu"
+        android:title="@string/done"
+        android:icon="@drawable/ic_done_white_24px"
+        app:showAsAction="always" />
+</menu>
