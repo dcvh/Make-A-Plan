@@ -1,7 +1,11 @@
 package tcd.android.com.makeaplan;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -78,6 +82,9 @@ public class MainActivity extends AppCompatActivity
     private String userId = null;
     private User user;
 
+    // dialogs
+    public static ProgressDialog downloadProgressDialog = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,19 +92,12 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        GlobalMethod.checkNetworkState(this);
+
         initializeBasicComponents();
         initializeFirebaseAuthentication();
         initializeFirebaseComponents();
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.getMenu().getItem(0).setChecked(true);
-        navigationView.setNavigationItemSelectedListener(this);
+        initializeNavigationDrawerComponents(toolbar);
 
         // personal plan action
         FloatingActionButton personalFAB = (FloatingActionButton) findViewById(R.id.fab_personal);
@@ -147,6 +147,18 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+    }
+
+    private void initializeNavigationDrawerComponents(Toolbar toolbar) {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.getMenu().getItem(0).setChecked(true);
+        navigationView.setNavigationItemSelectedListener(this);
     }
 
     @Override
@@ -327,9 +339,13 @@ public class MainActivity extends AppCompatActivity
 
     private void onSignedInInitialize() {
         if (mChildEventListener == null) {
+            if (GlobalMethod.isNetworkConnected(this)) {
+                showDownloadProgressDialog();
+            }
             mChildEventListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    GlobalMethod.dismissNetworkDialog();
                     createPlanInListView(dataSnapshot);
                 }
                 @Override
@@ -368,6 +384,9 @@ public class MainActivity extends AppCompatActivity
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             GroupPlan groupPlan = dataSnapshot.getValue(GroupPlan.class);
                             planListAdapter.add(groupPlan);
+                            if (downloadProgressDialog != null) {
+                                downloadProgressDialog.dismiss();
+                            }
                         }
 
                         @Override
@@ -381,6 +400,9 @@ public class MainActivity extends AppCompatActivity
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             PersonalPlan personalPlan = dataSnapshot.getValue(PersonalPlan.class);
                             planListAdapter.add(personalPlan);
+                            if (downloadProgressDialog != null) {
+                                downloadProgressDialog.dismiss();
+                            }
                         }
 
                         @Override
@@ -388,4 +410,12 @@ public class MainActivity extends AppCompatActivity
                     });
         }
     }
+
+    private void showDownloadProgressDialog() {
+        downloadProgressDialog = new ProgressDialog(this);
+        downloadProgressDialog.setMessage(getResources().getString(R.string.downloading_message));
+        downloadProgressDialog.setCanceledOnTouchOutside(false);
+        downloadProgressDialog.show();
+    }
+
 }

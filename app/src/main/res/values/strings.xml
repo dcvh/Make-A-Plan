@@ -11,6 +11,8 @@
     <string name="uploading_message">Please wait until the upload is complete</string>
     <string name="under_development_message">Feature under development. Coming soon.</string>
     <string name="become_friend_message">has become your friends</string>
+    <string name="downloading_message">Please wait until the download is complete</string>
+    <string name="check_network_connection_message">Cannot connect to server. An internet connection is required.</string>
 
     <!--errors-->
     <string name="name_empty_error">Task name is required. Please enter a valid name.</string>
@@ -41,6 +43,8 @@
     <string name="yes">Yes</string>
     <string name="ok" translatable="false">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="quit">Quit</string>
+    <string name="try_again">Try again</string>
 
     <!--labels-->
     <string name="task">Task</string>
