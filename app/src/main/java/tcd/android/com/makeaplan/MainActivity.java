@@ -3,14 +3,20 @@ package tcd.android.com.makeaplan;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
@@ -40,6 +46,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import tcd.android.com.makeaplan.Adapter.PlanListAdapter;
+import tcd.android.com.makeaplan.Entities.GlobalMethod;
 import tcd.android.com.makeaplan.Entities.GroupPlan;
 import tcd.android.com.makeaplan.Entities.PersonalPlan;
 import tcd.android.com.makeaplan.Entities.Plan;
@@ -48,7 +55,8 @@ import tcd.android.com.makeaplan.Entities.User;
 import static android.graphics.Color.BLACK;
 import static android.graphics.Color.WHITE;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener  {
 
     private static final String TAG = "MainActivity";
     private static final int RC_SIGN_IN = 1;
@@ -74,10 +82,22 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         initializeBasicComponents();
         initializeFirebaseAuthentication();
         initializeFirebaseComponents();
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.getMenu().getItem(0).setChecked(true);
+        navigationView.setNavigationItemSelectedListener(this);
 
         // personal plan action
         FloatingActionButton personalFAB = (FloatingActionButton) findViewById(R.id.fab_personal);
@@ -144,6 +164,47 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.nav_current:
+                break;
+            case R.id.nav_overdue:
+                GlobalMethod.showUnderDevelopmentDialog(this);
+                break;
+            case R.id.nav_account_info:
+                Intent accountIntent = new Intent(this, MyAccountActivity.class);
+                accountIntent.putExtra(getResources().getString(R.string.my_account), user);
+                startActivity(accountIntent);
+                break;
+            case R.id.nav_settings:
+                Intent settingsIntent = new Intent(this, SettingsActivity.class);
+                startActivity(settingsIntent);
+                break;
+            case R.id.nav_help_feedback:
+                GlobalMethod.showUnderDevelopmentDialog(this);
+                break;
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
@@ -155,15 +216,6 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.sign_out_menu:
                 AuthUI.getInstance().signOut(this);
-                return true;
-            case R.id.settings_menu:
-                Intent settingsIntent = new Intent(this, SettingsActivity.class);
-                startActivity(settingsIntent);
-                return true;
-            case R.id.my_account_menu:
-                Intent accountIntent = new Intent(this, MyAccountActivity.class);
-                accountIntent.putExtra(getResources().getString(R.string.my_account), user);
-                startActivity(accountIntent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -216,8 +268,6 @@ public class MainActivity extends AppCompatActivity {
         planListView = (ListView) findViewById(R.id.plan_list_view);
         planListAdapter = new PlanListAdapter(this);
         planListView.setAdapter(planListAdapter);
-        planListAdapter.add(new Plan("University of Science", "03/07/2017", "11:21 PM", "Personal"));
-        planListAdapter.add(new Plan("University of Technology", "04/07/2017", "11:21 AM", "Group"));
     }
 
     private void initializeFirebaseComponents() {
@@ -261,8 +311,9 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 user = dataSnapshot.getValue(User.class);
+                                ((TextView)findViewById(R.id.tv_account_name)).setText(user.getName());
+                                ((TextView)findViewById(R.id.tv_account_email)).setText(user.getEmail());
                             }
-
                             @Override
                             public void onCancelled(DatabaseError databaseError) {
                             }

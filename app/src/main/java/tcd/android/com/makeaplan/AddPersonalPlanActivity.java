@@ -47,6 +47,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 import tcd.android.com.makeaplan.Adapter.PlanOptionListAdapter;
+import tcd.android.com.makeaplan.Entities.GlobalMethod;
 import tcd.android.com.makeaplan.Entities.PersonalPlan;
 import tcd.android.com.makeaplan.Entities.PlanOption;
 
@@ -121,10 +122,7 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
                 choosePersonalPlanDateAndTime();
                 break;
             case R.id.take_photo_menu:
-                new AlertDialog.Builder(AddPersonalPlanActivity.this)
-                        .setMessage(R.string.under_development_message)
-                        .setPositiveButton(getResources().getString(R.string.ok), null)
-                        .show();
+                GlobalMethod.showUnderDevelopmentDialog(this);
                 break;
             case R.id.gallery_menu:
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);

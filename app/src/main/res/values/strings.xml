@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">Make A Plan</string>
 
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
     <!--messages-->
     <string name="welcome_message">Sign in succesfully. Welcome to Make A Plan!</string>
     <string name="cancel_sign_in_message">Sign in canceled</string>
@@ -15,14 +18,19 @@
     <string name="location_empty_error">Location is required. Please choose a valid location.</string>
     <string name="create_qr_code_error">There was a problem displaying the qr code.</string>
 
+    <!--navigation drawer menus-->
+    <string name="current_plans">Current Plans</string>
+    <string name="overdue_plans">Overdue Plans</string>
+    <string name="settings">Settings</string>
+    <string name="my_account">My account</string>
+    <string name="help_feeback">Help and feedback</string>
+
     <!--menus-->
     <string name="sign_out">Sign out</string>
-    <string name="settings">Settings</string>
     <string name="take_photo">Take photo</string>
     <string name="gallery">Gallery</string>
     <string name="reminder">Reminder</string>
     <string name="edit">Edit</string>
-    <string name="my_account">My account</string>
 
     <!--buttons-->
     <string name="personal">Personal</string>

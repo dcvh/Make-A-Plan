@@ -23,6 +23,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 
+import tcd.android.com.makeaplan.Entities.GlobalMethod;
 import tcd.android.com.makeaplan.Entities.GroupPlan;
 
 public class ViewGroupPlanDetailActivity extends AppCompatActivity {
@@ -75,10 +76,7 @@ public class ViewGroupPlanDetailActivity extends AppCompatActivity {
                 onBackPressed();
                 break;
             case R.id.edit_menu:
-                new AlertDialog.Builder(ViewGroupPlanDetailActivity.this)
-                        .setMessage(R.string.under_development_message)
-                        .setPositiveButton(getResources().getString(R.string.ok), null)
-                        .show();
+                GlobalMethod.showUnderDevelopmentDialog(this);
                 break;
             default:
                 break;

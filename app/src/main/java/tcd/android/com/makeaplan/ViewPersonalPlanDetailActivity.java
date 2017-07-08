@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.squareup.picasso.Picasso;
 
+import tcd.android.com.makeaplan.Entities.GlobalMethod;
 import tcd.android.com.makeaplan.Entities.PersonalPlan;
 
 public class ViewPersonalPlanDetailActivity extends AppCompatActivity {
@@ -54,10 +55,7 @@ public class ViewPersonalPlanDetailActivity extends AppCompatActivity {
                 onBackPressed();
                 break;
             case R.id.edit_menu:
-                new AlertDialog.Builder(ViewPersonalPlanDetailActivity.this)
-                        .setMessage(R.string.under_development_message)
-                        .setPositiveButton(getResources().getString(R.string.ok), null)
-                        .show();
+                GlobalMethod.showUnderDevelopmentDialog(this);
                 break;
             default:
                 break;
