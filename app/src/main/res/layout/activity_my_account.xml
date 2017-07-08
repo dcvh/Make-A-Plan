@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    tools:context="tcd.android.com.makeaplan.MyAccountActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/account_name"
+        android:textStyle="bold"
+        android:textAllCaps="true"
+        android:textColor="@color/colorAccent"
+        android:layout_marginTop="16dp" />
+
+    <TextView
+        android:id="@+id/tv_account_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        tools:text="TCD" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/email"
+        android:textStyle="bold"
+        android:textAllCaps="true"
+        android:textColor="@color/colorAccent"
+        android:layout_marginTop="16dp" />
+
+    <TextView
+        android:id="@+id/tv_account_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        tools:text="testing@gmail.com" />
+
+    <!--<TextView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="@string/number_plans"-->
+        <!--android:textStyle="bold"-->
+        <!--android:textAllCaps="true"-->
+        <!--android:textColor="@color/colorAccent"-->
+        <!--android:layout_marginTop="16dp" />-->
+
+    <!--<TextView-->
+        <!--android:id="@+id/tv_account_number_plans"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginTop="8dp"-->
+        <!--android:textAppearance="@style/TextAppearance.AppCompat.Body1"-->
+        <!--tools:text="5" />-->
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/account_id"
+        android:textStyle="bold"
+        android:textAllCaps="true"
+        android:textColor="@color/colorAccent"
+        android:layout_marginTop="16dp" />
+
+    <TextView
+        android:id="@+id/tv_account_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        tools:text="abcdefghijklmnopqrst0123456789" />
+
+    <ImageView
+        android:id="@+id/iv_account_id_qr_code"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent" />
+
+</LinearLayout>

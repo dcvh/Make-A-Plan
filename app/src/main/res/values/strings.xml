@@ -2,15 +2,18 @@
     <string name="app_name">Make A Plan</string>
 
     <!--messages-->
+    <string name="welcome_message">Sign in succesfully. Welcome to Make A Plan!</string>
     <string name="cancel_sign_in_message">Sign in canceled</string>
     <string name="remove_image_warning">Are you sure you want to remove this image?</string>
-    <string name="uploading_message">please wait until the upload is complete</string>
+    <string name="uploading_message">Please wait until the upload is complete</string>
     <string name="under_development_message">Feature under development. Coming soon.</string>
+    <string name="become_friend_message">has become your friends</string>
 
     <!--errors-->
     <string name="name_empty_error">Task name is required. Please enter a valid name.</string>
     <string name="note_empty_error">Note content is required. Please enter valid content.</string>
     <string name="location_empty_error">Location is required. Please choose a valid location.</string>
+    <string name="create_qr_code_error">There was a problem displaying the qr code.</string>
 
     <!--menus-->
     <string name="sign_out">Sign out</string>
@@ -19,8 +22,12 @@
     <string name="gallery">Gallery</string>
     <string name="reminder">Reminder</string>
     <string name="edit">Edit</string>
+    <string name="my_account">My account</string>
 
     <!--buttons-->
+    <string name="personal">Personal</string>
+    <string name="group">Group</string>
+    <string name="add_friend">Add friend</string>
     <string name="done">Done</string>
     <string name="navigate">Navigate</string>
     <string name="yes">Yes</string>
@@ -28,8 +35,6 @@
     <string name="cancel">Cancel</string>
 
     <!--labels-->
-    <string name="personal">Personal</string>
-    <string name="group">Group</string>
     <string name="task">Task</string>
     <string name="group_plan">Group plan</string>
     <string name="personal_plan">Personal plan</string>
@@ -41,6 +46,10 @@
     <string name="choose_invitees">Choose your invitees</string>
     <string name="note">Note</string>
     <string name="plan_image">Plan image</string>
+    <string name="account_name">Account Name</string>
+    <string name="email">Email</string>
+    <string name="number_plans">Plans created</string>
+    <string name="account_id">Account ID</string>
 
     <!--others-->
 

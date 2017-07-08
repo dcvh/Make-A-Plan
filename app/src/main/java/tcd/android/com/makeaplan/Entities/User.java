@@ -1,12 +1,14 @@
 package tcd.android.com.makeaplan.Entities;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
  * Created by ADMIN on 06/05/2017.
  */
 
-public class User {
+public class User implements Serializable{
+    private String id;
     private String name;
     private String email;
     private HashMap<String, String> friendsList;          // user's friends
@@ -19,19 +21,27 @@ public class User {
         this.email = email;
     }
 
-    public HashMap<String, String> getFriendsInfo() {
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public HashMap<String, String> getFriendsList() {
         return friendsList;
     }
 
-    public void setFriendsInfo(HashMap<String, String> friendsList) {
+    public void setFriendsList(HashMap<String, String> friendsList) {
         this.friendsList = friendsList;
     }
 
-    public HashMap<String, String> getPlansInfo() {
+    public HashMap<String, String> getPlansList() {
         return plansList;
     }
 
-    public void setPlansInfo(HashMap<String, String> plansList) {
+    public void setPlansList(HashMap<String, String> plansList) {
         this.plansList = plansList;
     }
 

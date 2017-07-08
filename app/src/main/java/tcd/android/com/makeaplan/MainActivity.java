@@ -1,6 +1,7 @@
 package tcd.android.com.makeaplan;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,6 +17,8 @@ import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.auth.ResultCodes;
 import com.github.clans.fab.FloatingActionButton;
+import com.google.android.gms.vision.barcode.Barcode;
+import com.google.android.gms.vision.barcode.BarcodeDetector;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -23,16 +26,27 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 import tcd.android.com.makeaplan.Adapter.PlanListAdapter;
 import tcd.android.com.makeaplan.Entities.GroupPlan;
 import tcd.android.com.makeaplan.Entities.PersonalPlan;
 import tcd.android.com.makeaplan.Entities.Plan;
 import tcd.android.com.makeaplan.Entities.User;
+
+import static android.graphics.Color.BLACK;
+import static android.graphics.Color.WHITE;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -85,16 +99,28 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        // add friend action
+        FloatingActionButton addFriendFAB = (FloatingActionButton)findViewById(R.id.fab_add_friend);
+        addFriendFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                IntentIntegrator integrator = new IntentIntegrator(MainActivity.this);
+                integrator.initiateScan();
+            }
+        });
         // each plan action
         planListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Plan plan = (Plan) parent.getAdapter().getItem(position);
+                // a group plan
                 if (plan.getTag().equals(getResources().getString(R.string.group))) {
                     Intent groupPlanDetailIntent = new Intent(MainActivity.this, ViewGroupPlanDetailActivity.class);
                     groupPlanDetailIntent.putExtra(getResources().getString(R.string.group), (GroupPlan)plan);
                     startActivity(groupPlanDetailIntent);
-                } else if (plan.getTag().equals(getResources().getString(R.string.personal))) {
+                }
+                // a personal plan
+                else if (plan.getTag().equals(getResources().getString(R.string.personal))) {
                     Intent personalPlanDetailIntent = new Intent(MainActivity.this, ViewPersonalPlanDetailActivity.class);
                     personalPlanDetailIntent.putExtra(getResources().getString(R.string.personal), (PersonalPlan)plan);
                     startActivity(personalPlanDetailIntent);
@@ -131,8 +157,13 @@ public class MainActivity extends AppCompatActivity {
                 AuthUI.getInstance().signOut(this);
                 return true;
             case R.id.settings_menu:
-                Intent intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
+                Intent settingsIntent = new Intent(this, SettingsActivity.class);
+                startActivity(settingsIntent);
+                return true;
+            case R.id.my_account_menu:
+                Intent accountIntent = new Intent(this, MyAccountActivity.class);
+                accountIntent.putExtra(getResources().getString(R.string.my_account), user);
+                startActivity(accountIntent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -141,22 +172,44 @@ public class MainActivity extends AppCompatActivity {
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RC_SIGN_IN) {
-            IdpResponse response = IdpResponse.fromResultIntent(data);
+        // add friend via qr code
+        if (requestCode == IntentIntegrator.REQUEST_CODE) {
+            IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+            if (scanResult != null && scanResult.getContents() != null) {
+                addNewFriendToFirebase(scanResult.getContents());
+            }
+        }
+        // else continue with any other situation
+        else if (requestCode == RC_SIGN_IN) {
             // Successfully signed in
             if (resultCode == ResultCodes.OK) {
-                Toast.makeText(this, "Signed in", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.welcome_message, Toast.LENGTH_SHORT).show();
                 return;
             } else {
                 if (resultCode == ResultCodes.CANCELED) {
                     // User cancelled
-                    Toast.makeText(MainActivity.this,
-                            getResources().getString(R.string.cancel_sign_in_message),
-                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, R.string.cancel_sign_in_message, Toast.LENGTH_SHORT).show();
                     finish();
                 }
             }
         }
+    }
+
+    private void addNewFriendToFirebase(final String friendInfo) {
+        mUserDatabaseRef.child(userId).child("friends").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                GenericTypeIndicator<HashMap<String, String>> t = new GenericTypeIndicator<HashMap<String, String>>() {};
+                HashMap<String, String> friendsList = dataSnapshot.getValue(t);
+                String[] results = friendInfo.split(",");
+                friendsList.put(results[0], results[1]);
+                mUserDatabaseRef.child(userId).child("friends").setValue(friendsList);
+                Toast.makeText(MainActivity.this, results[1] + " " + getResources().getString(R.string.become_friend_message),
+                        Toast.LENGTH_SHORT).show();
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
     }
 
     private void initializeBasicComponents() {
