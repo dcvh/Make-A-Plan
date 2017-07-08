@@ -4,23 +4,18 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.auth.ResultCodes;
 import com.github.clans.fab.FloatingActionButton;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -28,15 +23,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
 
 import tcd.android.com.makeaplan.Adapter.PlanListAdapter;
 import tcd.android.com.makeaplan.Entities.GroupPlan;
@@ -101,11 +91,11 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Plan plan = (Plan) parent.getAdapter().getItem(position);
                 if (plan.getTag().equals(getResources().getString(R.string.group))) {
-                    Intent groupPlanDetailIntent = new Intent(MainActivity.this, GroupPlanDetailActivity.class);
+                    Intent groupPlanDetailIntent = new Intent(MainActivity.this, ViewGroupPlanDetailActivity.class);
                     groupPlanDetailIntent.putExtra(getResources().getString(R.string.group), (GroupPlan)plan);
                     startActivity(groupPlanDetailIntent);
                 } else if (plan.getTag().equals(getResources().getString(R.string.personal))) {
-                    Intent personalPlanDetailIntent = new Intent(MainActivity.this, PersonalPlanDetailActivity.class);
+                    Intent personalPlanDetailIntent = new Intent(MainActivity.this, ViewPersonalPlanDetailActivity.class);
                     personalPlanDetailIntent.putExtra(getResources().getString(R.string.personal), (PersonalPlan)plan);
                     startActivity(personalPlanDetailIntent);
                 }

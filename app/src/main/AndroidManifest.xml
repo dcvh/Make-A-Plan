@@ -30,9 +30,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
-        <activity android:name=".GroupPlanDetailActivity" />
+        <activity android:name=".ViewGroupPlanDetailActivity" />
         <activity android:name=".AddPersonalPlanActivity" />
-        <activity android:name=".PersonalPlanDetailActivity"></activity>
+        <activity android:name=".ViewPersonalPlanDetailActivity"></activity>
     </application>
 
 </manifest>

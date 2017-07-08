@@ -52,8 +52,6 @@ public class AddGroupPlanActivity extends AppCompatActivity {
     private DatabaseReference userDatabaseRef;
     private DatabaseReference groupPlanDatabaseRef;
 
-    private EditText taskNameEditText;
-
     // other variables
     private String userId;
     private GroupPlan groupPlan;            // this contains the result
@@ -102,13 +100,18 @@ public class AddGroupPlanActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String taskName = taskNameEditText.getText().toString();
+                // get task name
+                String taskName = ((EditText)findViewById(R.id.edt_task_name)).getText().toString();
                 if (taskName.length() == 0) {
-                    Snackbar.make(view, getResources().getString(R.string.name_empty_error), Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                    Snackbar.make(view, getResources().getString(R.string.name_empty_error), Snackbar.LENGTH_LONG).show();
                     return;
                 }
                 groupPlan.setName(taskName);
+                // validate location
+                if (groupPlan.getPlaceLatLng() == null) {
+                    Snackbar.make(view, getResources().getString(R.string.location_empty_error), Snackbar.LENGTH_LONG).show();
+                    return;
+                }
                 // get group plan ID
                 String groupPlanId = groupPlanDatabaseRef.push().getKey();
                 // upload data to Firebase
@@ -139,8 +142,6 @@ public class AddGroupPlanActivity extends AppCompatActivity {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         dateFormatPref = sharedPref.getString(SettingsActivity.KEY_PREF_DATE_FORMAT, "");
         timeFormatPref = sharedPref.getString(SettingsActivity.KEY_PREF_TIME_FORMAT, "");
-
-        taskNameEditText = (EditText) findViewById(R.id.edt_task_name);
 
         groupPlan = new GroupPlan("",
                 getFormattedDate(selectedDate, dateFormatPref),

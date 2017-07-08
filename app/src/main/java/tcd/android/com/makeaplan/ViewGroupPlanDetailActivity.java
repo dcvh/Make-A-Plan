@@ -1,9 +1,13 @@
 package tcd.android.com.makeaplan;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -21,15 +25,16 @@ import java.util.HashMap;
 
 import tcd.android.com.makeaplan.Entities.GroupPlan;
 
-public class GroupPlanDetailActivity extends AppCompatActivity {
+public class ViewGroupPlanDetailActivity extends AppCompatActivity {
 
     private GroupPlan groupPlan;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_group_plan_detail);
+        setContentView(R.layout.activity_view_group_plan_detail);
         this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        this.getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         groupPlan = (GroupPlan) getIntent().getSerializableExtra(getResources().getString(R.string.group));
 
@@ -53,6 +58,32 @@ public class GroupPlanDetailActivity extends AppCompatActivity {
         });
 
         displayInvitees();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.view_plan_detail_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case android.R.id.home:
+                onBackPressed();
+                break;
+            case R.id.edit_menu:
+                new AlertDialog.Builder(ViewGroupPlanDetailActivity.this)
+                        .setMessage(R.string.under_development_message)
+                        .setPositiveButton(getResources().getString(R.string.ok), null)
+                        .show();
+                break;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void displayGroupPlanInfo() {

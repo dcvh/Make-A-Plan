@@ -10,6 +10,7 @@ import java.util.HashMap;
 public class PersonalPlan extends Plan implements Serializable {
 
     private String note;
+    private String imageUrl;
 
     public PersonalPlan() {}
 
@@ -23,5 +24,13 @@ public class PersonalPlan extends Plan implements Serializable {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

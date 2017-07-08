@@ -24,18 +24,23 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -50,14 +55,12 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
     private static final String TAG_LOG = "AddPersonalPlanActivity";
     private static final int RC_PHOTO_PICKER = 1;
 
-    // personal plan option list view
-    private ListView optionListView;
-    private PlanOptionListAdapter optionListAdapter;
-
     // firebase components
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference userDatabaseRef;
     private DatabaseReference personalPlanDatabaseRef;
+    private FirebaseStorage firebaseStorage;
+    private StorageReference mPlanImageStorageRef;
 
     // other variables
     private String userId;
@@ -65,7 +68,8 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
     private Calendar selectedDate = Calendar.getInstance();
     private String dateFormatPref;
     private String timeFormatPref;
-    ImageView planImageView;
+    private ImageView planImageView;
+    private Uri selectedImageUri = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,17 +115,16 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
                 if (validateUserInputs() == false) {
                     break;
                 }
-                // get personal plan ID
-                String personalPlanId = personalPlanDatabaseRef.push().getKey();
-                // upload data to Firebase
-                personalPlanDatabaseRef.child(personalPlanId).setValue(personalPlan);
-                createPlanInSingleInvitee(userId, personalPlanId);
-
-                finish();
+                uploadPlanDataToFirebase();
+                break;
             case R.id.reminder_menu:
                 choosePersonalPlanDateAndTime();
                 break;
             case R.id.take_photo_menu:
+                new AlertDialog.Builder(AddPersonalPlanActivity.this)
+                        .setMessage(R.string.under_development_message)
+                        .setPositiveButton(getResources().getString(R.string.ok), null)
+                        .show();
                 break;
             case R.id.gallery_menu:
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -131,6 +134,28 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void uploadPlanDataToFirebase() {
+        // upload image to firebase
+        StorageReference photoRef = mPlanImageStorageRef.child(selectedImageUri.getLastPathSegment());
+        UploadTask uploadTask = photoRef.putFile(selectedImageUri);
+        uploadTask.addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                @SuppressWarnings("VisibleForTests") Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                Snackbar.make(findViewById(android.R.id.content), getResources().getString(R.string.uploading_message), Snackbar.LENGTH_LONG)
+                        .show();
+                personalPlan.setImageUrl(downloadUrl.toString());
+                // get personal plan ID
+                String personalPlanId = personalPlanDatabaseRef.push().getKey();
+                // upload data to Firebase
+                personalPlanDatabaseRef.child(personalPlanId).setValue(personalPlan);
+                createPlanInSingleInvitee(userId, personalPlanId);
+
+                finish();
+            }
+        });
     }
 
     private void initializeBasicComponents() {
@@ -157,6 +182,9 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
         firebaseDatabase = FirebaseDatabase.getInstance();
         userDatabaseRef = firebaseDatabase.getReference().child("users");
         personalPlanDatabaseRef = firebaseDatabase.getReference().child("personalPlan");
+
+        firebaseStorage = FirebaseStorage.getInstance();
+        mPlanImageStorageRef = firebaseStorage.getReference().child("personalPlan");
     }
 
     private boolean validateUserInputs() {
@@ -245,7 +273,8 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
         switch (requestCode) {
             case RC_PHOTO_PICKER:
                 if (resultCode == RESULT_OK) {
-                    Uri selectedImageUri = data.getData();
+                    selectedImageUri = data.getData();
+                    // display selected image
                     planImageView.setImageURI(selectedImageUri);
                     planImageView.setVisibility(View.VISIBLE);
                 }

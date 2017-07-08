@@ -7,7 +7,7 @@
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
     android:layout_marginTop="16dp"
-    tools:context="tcd.android.com.makeaplan.GroupPlanDetailActivity" >
+    tools:context="tcd.android.com.makeaplan.ViewGroupPlanDetailActivity" >
 
     <TextView
         android:id="@+id/tv_group_plan_name"
