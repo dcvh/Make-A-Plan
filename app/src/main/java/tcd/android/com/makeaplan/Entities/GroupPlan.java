@@ -18,6 +18,7 @@ public class GroupPlan extends Plan implements Serializable {
     private String placeLatLng;
     private String placeAddress;
     private HashMap<String, String> invitees;
+    private HashMap<String, Integer> inviteesStatus;
 
     public GroupPlan() {}
 
@@ -58,11 +59,19 @@ public class GroupPlan extends Plan implements Serializable {
         this.placeAddress = placeAddress;
     }
 
-    public HashMap<String, String> getinvitees() {
+    public HashMap<String, String> getInvitees() {
         return invitees;
     }
 
-    public void setinvitees(HashMap<String, String> invitees) {
+    public void setInvitees(HashMap<String, String> invitees) {
         this.invitees = invitees;
+    }
+
+    public HashMap<String, Integer> getInviteesStatus() {
+        return inviteesStatus;
+    }
+
+    public void setInviteesStatus(HashMap<String, Integer> inviteesStatus) {
+        this.inviteesStatus = inviteesStatus;
     }
 }

@@ -113,10 +113,11 @@ public class AddGroupPlanActivity extends AppCompatActivity {
                 }
                 // get group plan ID
                 String groupPlanId = groupPlanDatabaseRef.push().getKey();
+                groupPlan.setId(groupPlanId);
                 // upload data to Firebase
                 groupPlanDatabaseRef.child(groupPlanId).setValue(groupPlan);
                 createPlanInSingleInvitee(userId, groupPlanId);
-                for (String inviteeId : groupPlan.getinvitees().keySet()) {
+                for (String inviteeId : groupPlan.getInvitees().keySet()) {
                     createPlanInSingleInvitee(inviteeId, groupPlanId);
                 }
 
@@ -167,10 +168,6 @@ public class AddGroupPlanActivity extends AppCompatActivity {
         // friends option
         optionListAdapter.add(new PlanOption(getString(R.string.invitees),
                 getString(R.string.no_invitee), R.drawable.ic_invitee_black_48px));
-    }
-
-    private String getFormattedDate(Calendar date, String format) {
-        return new SimpleDateFormat(format).format(date.getTime());
     }
 
     private void choosePlanDueDate(final PlanOption option) {
@@ -246,14 +243,17 @@ public class AddGroupPlanActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 // user clicked OK
                 HashMap<String, String> invitees = new HashMap<String, String>();
+                HashMap<String, Integer> inviteesStatus = new HashMap<String, Integer>();
                 int count = 0;
                 for (int i = 0; i < checkedItems.length; i++) {
                     if (checkedItems[i]){
                         invitees.put(friendsIdList[i], friendsNameList[i]);
+                        inviteesStatus.put(friendsIdList[i], 0);
                         count++;
                     }
                 }
-                groupPlan.setinvitees(invitees);
+                groupPlan.setInvitees(invitees);
+                groupPlan.setInviteesStatus(inviteesStatus);
                 option.setValue(String.valueOf(count) + " " + getString(R.string.invitee));
                 ((BaseAdapter)optionListView.getAdapter()).notifyDataSetChanged();
             }

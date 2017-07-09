@@ -1,34 +1,49 @@
 package tcd.android.com.makeaplan;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ScrollView;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
+import tcd.android.com.makeaplan.Adapter.PlanInviteeListAdapter;
 import tcd.android.com.makeaplan.Entities.GlobalMethod;
 import tcd.android.com.makeaplan.Entities.GroupPlan;
 
 public class ViewGroupPlanDetailActivity extends AppCompatActivity {
 
     private GroupPlan groupPlan;
+    private String userId;
+    private Switch switchStatus;
+
+    // firebase components
+    private DatabaseReference groupPlanDatabaseRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +53,8 @@ public class ViewGroupPlanDetailActivity extends AppCompatActivity {
         this.getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         groupPlan = (GroupPlan) getIntent().getSerializableExtra(getString(R.string.group));
+        userId = getIntent().getStringExtra(getString(R.string.account_id));
+        switchStatus = (Switch) findViewById(R.id.switch_status);
 
         displayGroupPlanInfo();
 
@@ -49,7 +66,7 @@ public class ViewGroupPlanDetailActivity extends AppCompatActivity {
         Picasso.with(this).load(imageUrl).fit().centerCrop().into(locationImageView);
 
         // navigate button
-        ((TextView)findViewById(R.id.tv_navigate)).setOnClickListener(new View.OnClickListener() {
+        ((TextView) findViewById(R.id.tv_navigate)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
@@ -59,6 +76,10 @@ public class ViewGroupPlanDetailActivity extends AppCompatActivity {
         });
 
         displayInvitees();
+
+        // scroll to top
+        ScrollView scrollView = (ScrollView) findViewById(R.id.scrollView);
+        scrollView.smoothScrollTo(0, 0);
     }
 
     @Override
@@ -73,7 +94,7 @@ public class ViewGroupPlanDetailActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case android.R.id.home:
-                onBackPressed();
+                updateOwnerAttendanceStatus();
                 break;
             case R.id.edit_menu:
                 GlobalMethod.showUnderDevelopmentDialog(this);
@@ -84,13 +105,38 @@ public class ViewGroupPlanDetailActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void updateOwnerAttendanceStatus() {
+        if (switchStatus.getVisibility() == View.VISIBLE) {
+            groupPlanDatabaseRef = FirebaseDatabase.getInstance().getReference().child(getString(R.string.firebase_group_plan));
+            groupPlanDatabaseRef.child(groupPlan.getId()).child(getString(R.string.firebase_invitees_status))
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            GenericTypeIndicator<HashMap<String, Integer>> t = new GenericTypeIndicator<HashMap<String, Integer>>() {};
+                            HashMap<String, Integer> inviteesStatus = dataSnapshot.getValue(t);
+                            inviteesStatus.put(groupPlan.getOwner(), switchStatus.isChecked() ? 1 : 0);
+                            groupPlan.setInviteesStatus(inviteesStatus);
+                            groupPlanDatabaseRef.child(groupPlan.getId()).child(getString(R.string.firebase_invitees_status))
+                                    .setValue(inviteesStatus);
+
+                            Intent resultIntent = new Intent();
+                            resultIntent.putExtra(getString(R.string.firebase_invitees_status), switchStatus.isChecked() ? 1 : 0);
+                            setResult(Activity.RESULT_OK, resultIntent);
+                            onBackPressed();
+                        }
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {}
+                    });
+        }
+    }
+
     private void displayGroupPlanInfo() {
-        ((TextView)findViewById(R.id.tv_group_plan_name)).setText(groupPlan.getName());
-        ((TextView)findViewById(R.id.tv_group_plan_date))
+        ((TextView) findViewById(R.id.tv_group_plan_name)).setText(groupPlan.getName());
+        ((TextView) findViewById(R.id.tv_group_plan_date))
                 .setText(GlobalMethod.getDateFromMilliseconds(groupPlan.getDateTime(), this));
-        ((TextView)findViewById(R.id.tv_group_plan_time))
+        ((TextView) findViewById(R.id.tv_group_plan_time))
                 .setText(GlobalMethod.getTimeFromMilliseconds(groupPlan.getDateTime(), this));
-        ((TextView)findViewById(R.id.tv_group_plan_address)).setText(groupPlan.getPlaceAddress());
+        ((TextView) findViewById(R.id.tv_group_plan_address)).setText(groupPlan.getPlaceAddress());
 
         // retrieve owner name from its ID
         DatabaseReference userDatabaseRef = FirebaseDatabase.getInstance().getReference().child(getString(R.string.firebase_users));
@@ -100,23 +146,52 @@ public class ViewGroupPlanDetailActivity extends AppCompatActivity {
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         ((TextView) findViewById(R.id.tv_group_plan_owner)).setText(dataSnapshot.getValue(String.class));
                     }
+
                     @Override
-                    public void onCancelled(DatabaseError databaseError) {}
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
                 });
     }
 
     private void displayInvitees() {
-        HashMap invitees = groupPlan.getinvitees();
+        HashMap<String, String> invitees = groupPlan.getInvitees();
         if (invitees != null) {
             // attendance
             String attendance = invitees.size() + " " + getString(R.string.invitee);
-            ((TextView)findViewById(R.id.tv_group_plan_attendance)).setText(attendance);
+            ((TextView) findViewById(R.id.tv_group_plan_attendance)).setText(attendance);
             // invitees list
             ListView inviteesListView = (ListView) findViewById(R.id.lv_group_plan_invitees);
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                    android.R.layout.simple_list_item_1, android.R.id.text1,
-                    groupPlan.getinvitees().values().toArray(new String[0]));
+            PlanInviteeListAdapter adapter = new PlanInviteeListAdapter(this);
+            HashMap<String, Integer> inviteesStatus = groupPlan.getInviteesStatus();
+            if (inviteesStatus != null) {
+                for (Map.Entry<String, String> invitee : invitees.entrySet()) {
+                    adapter.add(new Pair<String, Integer>(invitee.getValue(), inviteesStatus.get(invitee.getKey())));
+                    // set owner attendance status
+                    if (invitee.getKey().equals(userId)) {
+                        boolean isGoing = inviteesStatus.get(invitee.getKey()) == 1;
+                        switchStatus.setVisibility(View.VISIBLE);
+                        switchStatus.setChecked(isGoing);
+                    }
+                }
+            }
             inviteesListView.setAdapter(adapter);
+
+            setListViewHeightBasedOnChildren(inviteesListView, adapter);
         }
+    }
+
+    void setListViewHeightBasedOnChildren(ListView listView, ArrayAdapter adapter) {
+        int totalHeight = 0;
+        // iterate through adapter
+        for (int i = 0; i < adapter.getCount(); i++) {
+            View listItem = adapter.getView(i, null, listView);
+            listItem.measure(0, 0);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+        // set its height
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight + (listView.getDividerHeight() * (adapter.getCount() - 1));
+        listView.setLayoutParams(params);
+        listView.requestLayout();
     }
 }

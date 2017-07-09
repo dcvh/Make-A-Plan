@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import tcd.android.com.makeaplan.Entities.GlobalMethod;
@@ -47,11 +48,15 @@ public class PlanListAdapter extends ArrayAdapter<Plan> {
                 .setText(GlobalMethod.getTimeFromMilliseconds(plan.getDateTime(), parent.getContext()));
         ((TextView)convertView.findViewById(R.id.tv_plan_tag)).setText(plan.getTag());
 
-        if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (plan.getTag().equals(mContext.getResources().getString(R.string.personal))) {
-                ((View) convertView.findViewById(R.id.circle_icon)).setBackgroundTintList(
-                        ColorStateList.valueOf(ContextCompat.getColor(mContext, android.R.color.holo_green_light)));
-            }
+//        if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            if (plan.getTag().equals(mContext.getString(R.string.personal))) {
+//                ((View) convertView.findViewById(R.id.circle_icon)).setBackgroundTintList(
+//                        ColorStateList.valueOf(ContextCompat.getColor(mContext, android.R.color.holo_green_light)));
+//            }
+//        }
+
+        if (plan.getTag().equals(mContext.getString(R.string.personal))) {
+            ((ImageView)convertView.findViewById(R.id.circle_icon)).setImageResource(R.drawable.ic_dot_blue_512px);
         }
 
         return convertView;

@@ -135,6 +135,7 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
     private void uploadPlanDataToFirebase() {
         // get personal plan ID
         final String personalPlanId = personalPlanDatabaseRef.push().getKey();
+        personalPlan.setId(personalPlanId);
         // upload image to firebase
         if (planImageView.getVisibility() == View.VISIBLE) {
             StorageReference photoRef = mPlanImageStorageRef.child(selectedImageUri.getLastPathSegment());
@@ -241,10 +242,6 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
                 Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
         );
         datePickerDialog.show();
-    }
-
-    private String getFormattedDate(Calendar date, String format) {
-        return new SimpleDateFormat(format).format(date.getTime());
     }
 
     private void createPlanInSingleInvitee(final String inviteeId, final String personalPlanId) {

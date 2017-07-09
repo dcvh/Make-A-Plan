@@ -15,6 +15,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -67,6 +68,7 @@ public class MainActivity extends AppCompatActivity
 
     private static final String TAG = "MainActivity";
     private static final int RC_SIGN_IN = 1;
+    private static final int RC_VIEW_GROUP_PLAN = 2;
 
     // firebase components
     private FirebaseDatabase mFirebaseDatabase;
@@ -84,6 +86,7 @@ public class MainActivity extends AppCompatActivity
 
     private String userId = null;
     private User user;
+    public static int selectedGroupPlanPosition = -1;
 
     // dialogs
     public static ProgressDialog downloadProgressDialog = null;
@@ -140,7 +143,9 @@ public class MainActivity extends AppCompatActivity
                 if (plan.getTag().equals(getString(R.string.group))) {
                     Intent groupPlanDetailIntent = new Intent(MainActivity.this, ViewGroupPlanDetailActivity.class);
                     groupPlanDetailIntent.putExtra(getString(R.string.group), (GroupPlan)plan);
-                    startActivity(groupPlanDetailIntent);
+                    groupPlanDetailIntent.putExtra(getString(R.string.account_id), userId);
+                    selectedGroupPlanPosition = position;
+                    startActivityForResult(groupPlanDetailIntent, RC_VIEW_GROUP_PLAN);
                 }
                 // a personal plan
                 else if (plan.getTag().equals(getString(R.string.personal))) {
@@ -274,6 +279,15 @@ public class MainActivity extends AppCompatActivity
                     Toast.makeText(MainActivity.this, R.string.cancel_sign_in_message, Toast.LENGTH_SHORT).show();
                     finish();
                 }
+            }
+        }
+        // updated status value
+        else if (requestCode == RC_VIEW_GROUP_PLAN) {
+            if (resultCode == ResultCodes.OK) {
+                int updatedStatus = data.getIntExtra(getString(R.string.firebase_invitees_status), -1);
+                HashMap<String, Integer> inviteesStatus = ((GroupPlan)planListAdapter.getItem(selectedGroupPlanPosition)).getInviteesStatus();
+                inviteesStatus.put(userId, updatedStatus);
+                ((GroupPlan)planListAdapter.getItem(selectedGroupPlanPosition)).setInviteesStatus(inviteesStatus);
             }
         }
     }

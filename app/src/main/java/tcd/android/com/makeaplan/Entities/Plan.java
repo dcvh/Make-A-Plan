@@ -9,6 +9,7 @@ import java.util.Calendar;
  */
 
 public class Plan implements Serializable {
+    private String id;
     private String name;
     private long dateTime;
     private String tag;
@@ -19,6 +20,14 @@ public class Plan implements Serializable {
         this.name = name;
         this.dateTime = dateTime;
         this.tag = tag;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
