@@ -14,8 +14,8 @@ public class PersonalPlan extends Plan implements Serializable {
 
     public PersonalPlan() {}
 
-    public PersonalPlan(String name, String date, String time, String tag, String owner) {
-        super(name, date, time, tag);
+    public PersonalPlan(String name, long dateTime, String tag, String owner) {
+        super(name, dateTime, tag);
     }
 
     public String getNote() {

@@ -10,16 +10,14 @@ import java.util.Calendar;
 
 public class Plan implements Serializable {
     private String name;
-    private String date;
-    private String time;
+    private long dateTime;
     private String tag;
 
     public Plan() {}
 
-    public Plan(String name, String date, String time, String tag) {
+    public Plan(String name, long dateTime, String tag) {
         this.name = name;
-        this.date = date;
-        this.time = time;
+        this.dateTime = dateTime;
         this.tag = tag;
     }
 
@@ -31,20 +29,12 @@ public class Plan implements Serializable {
         this.name = name;
     }
 
-    public String getDate() {
-        return date;
+    public long getDateTime() {
+        return dateTime;
     }
 
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
+    public void setDateTime(long dateTime) {
+        this.dateTime = dateTime;
     }
 
     public String getTag() {

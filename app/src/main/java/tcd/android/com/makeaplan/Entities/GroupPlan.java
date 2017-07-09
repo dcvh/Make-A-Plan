@@ -21,8 +21,8 @@ public class GroupPlan extends Plan implements Serializable {
 
     public GroupPlan() {}
 
-    public GroupPlan(String name, String date, String time, String tag, String owner) {
-        super(name, date, time, tag);
+    public GroupPlan(String name, long dateTime, String tag, String owner) {
+        super(name, dateTime, tag);
         this.owner = owner;
     }
 

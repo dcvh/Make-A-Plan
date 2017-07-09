@@ -65,8 +65,10 @@ public class ViewPersonalPlanDetailActivity extends AppCompatActivity {
 
     private void displaypersonalPlanInfo() {
         ((TextView)findViewById(R.id.tv_personal_plan_name)).setText(personalPlan.getName());
-        ((TextView)findViewById(R.id.tv_personal_plan_date)).setText(personalPlan.getDate());
-        ((TextView)findViewById(R.id.tv_personal_plan_time)).setText(personalPlan.getTime());
+        ((TextView)findViewById(R.id.tv_personal_plan_date))
+                .setText(GlobalMethod.getDateFromMilliseconds(personalPlan.getDateTime(), this));
+        ((TextView)findViewById(R.id.tv_personal_plan_time))
+                .setText(GlobalMethod.getTimeFromMilliseconds(personalPlan.getDateTime(), this));
         ((TextView)findViewById(R.id.tv_personal_plan_note)).setText(personalPlan.getNote());
     }
 }

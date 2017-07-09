@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -15,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import tcd.android.com.makeaplan.Entities.GlobalMethod;
 import tcd.android.com.makeaplan.Entities.Plan;
 import tcd.android.com.makeaplan.R;
 
@@ -39,7 +41,10 @@ public class PlanListAdapter extends ArrayAdapter<Plan> {
 
         Plan plan = getItem(position);
         ((TextView)convertView.findViewById(R.id.tv_plan_name)).setText(plan.getName());
-        ((TextView)convertView.findViewById(R.id.tv_plan_date)).setText(plan.getDate());
+        ((TextView)convertView.findViewById(R.id.tv_plan_date))
+                .setText(GlobalMethod.getDateFromMilliseconds(plan.getDateTime(), parent.getContext()));
+        ((TextView)convertView.findViewById(R.id.tv_plan_time))
+                .setText(GlobalMethod.getTimeFromMilliseconds(plan.getDateTime(), parent.getContext()));
         ((TextView)convertView.findViewById(R.id.tv_plan_tag)).setText(plan.getTag());
 
         if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

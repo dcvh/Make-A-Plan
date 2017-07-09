@@ -4,7 +4,9 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -14,6 +16,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -60,7 +63,7 @@ import static android.graphics.Color.BLACK;
 import static android.graphics.Color.WHITE;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener  {
+        implements NavigationView.OnNavigationItemSelectedListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = "MainActivity";
     private static final int RC_SIGN_IN = 1;
@@ -98,6 +101,9 @@ public class MainActivity extends AppCompatActivity
         initializeFirebaseAuthentication();
         initializeFirebaseComponents();
         initializeNavigationDrawerComponents(toolbar);
+
+        // Register the listener
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
 
         // personal plan action
         FloatingActionButton personalFAB = (FloatingActionButton) findViewById(R.id.fab_personal);
@@ -176,6 +182,13 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -231,6 +244,15 @@ public class MainActivity extends AppCompatActivity
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(SettingsActivity.KEY_PREF_DATE_FORMAT)) {
+            planListView.invalidateViews();
+        } else if (key.equals(SettingsActivity.KEY_PREF_TIME_FORMAT)) {
+            planListView.invalidateViews();
         }
     }
 

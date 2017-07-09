@@ -67,8 +67,6 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
     private String userId;
     private PersonalPlan personalPlan;            // this contains the result
     private Calendar selectedDate = Calendar.getInstance();
-    private String dateFormatPref;
-    private String timeFormatPref;
     private ImageView planImageView;
     private Uri selectedImageUri = null;
 
@@ -135,45 +133,47 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
     }
 
     private void uploadPlanDataToFirebase() {
+        // get personal plan ID
+        final String personalPlanId = personalPlanDatabaseRef.push().getKey();
         // upload image to firebase
-        StorageReference photoRef = mPlanImageStorageRef.child(selectedImageUri.getLastPathSegment());
-        UploadTask uploadTask = photoRef.putFile(selectedImageUri);
-        uploadTask.addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                @SuppressWarnings("VisibleForTests") Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                Snackbar.make(findViewById(android.R.id.content), getResources().getString(R.string.uploading_message), Snackbar.LENGTH_LONG)
-                        .show();
-                personalPlan.setImageUrl(downloadUrl.toString());
-                // get personal plan ID
-                String personalPlanId = personalPlanDatabaseRef.push().getKey();
-                // upload data to Firebase
-                personalPlanDatabaseRef.child(personalPlanId).setValue(personalPlan);
-                createPlanInSingleInvitee(userId, personalPlanId);
-
-                finish();
-            }
-        });
+        if (planImageView.getVisibility() == View.VISIBLE) {
+            StorageReference photoRef = mPlanImageStorageRef.child(selectedImageUri.getLastPathSegment());
+            UploadTask uploadTask = photoRef.putFile(selectedImageUri);
+            uploadTask.addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    @SuppressWarnings("VisibleForTests") Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                    Snackbar.make(findViewById(android.R.id.content), getResources().getString(R.string.uploading_message), Snackbar.LENGTH_LONG)
+                            .show();
+                    personalPlan.setImageUrl(downloadUrl.toString());
+                    // upload data to Firebase
+                    personalPlanDatabaseRef.child(personalPlanId).setValue(personalPlan);
+                    createPlanInSingleInvitee(userId, personalPlanId);
+                    finish();
+                }
+            });
+        } else {
+            // upload data to Firebase
+            personalPlanDatabaseRef.child(personalPlanId).setValue(personalPlan);
+            createPlanInSingleInvitee(userId, personalPlanId);
+            finish();
+        }
     }
 
     private void initializeBasicComponents() {
         userId = getIntent().getStringExtra("userId");
 
-        // get chosen format from Settings
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        dateFormatPref = sharedPref.getString(SettingsActivity.KEY_PREF_DATE_FORMAT, "");
-        timeFormatPref = sharedPref.getString(SettingsActivity.KEY_PREF_TIME_FORMAT, "");
-
         // initialize base result
         personalPlan = new PersonalPlan("",
-                getFormattedDate(selectedDate, dateFormatPref),
-                getFormattedDate(selectedDate, timeFormatPref),
+                selectedDate.getTimeInMillis(),
                 getResources().getString(R.string.personal),
                 userId);
 
         // update date and time
-        ((TextView)findViewById(R.id.tv_personal_plan_date)).setText(personalPlan.getDate());
-        ((TextView)findViewById(R.id.tv_personal_plan_time)).setText(personalPlan.getTime());
+        ((TextView)findViewById(R.id.tv_personal_plan_date))
+                .setText(GlobalMethod.getDateFromMilliseconds(personalPlan.getDateTime(), this));
+        ((TextView)findViewById(R.id.tv_personal_plan_time))
+                .setText(GlobalMethod.getTimeFromMilliseconds(personalPlan.getDateTime(), this));
     }
 
     private void initializeFirebaseComponents() {
@@ -222,10 +222,12 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
                                         selectedDate.set(Calendar.HOUR_OF_DAY, hourOfDay);
                                         selectedDate.set(Calendar.MINUTE, minute);
                                         // save result
-                                        personalPlan.setDate(getFormattedDate(selectedDate, dateFormatPref));
-                                        personalPlan.setTime(getFormattedDate(selectedDate, timeFormatPref));
-                                        ((TextView)findViewById(R.id.tv_personal_plan_date)).setText(personalPlan.getDate());
-                                        ((TextView)findViewById(R.id.tv_personal_plan_time)).setText(personalPlan.getTime());
+                                        personalPlan.setDateTime(selectedDate.getTimeInMillis());
+                                        // update date and time
+                                        ((TextView)findViewById(R.id.tv_personal_plan_date)).setText(GlobalMethod
+                                                .getDateFromMilliseconds(personalPlan.getDateTime(), AddPersonalPlanActivity.this));
+                                        ((TextView)findViewById(R.id.tv_personal_plan_time)).setText(GlobalMethod
+                                                .getTimeFromMilliseconds(personalPlan.getDateTime(), AddPersonalPlanActivity.this));
                                     }
                                 },
                                 Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + 1,

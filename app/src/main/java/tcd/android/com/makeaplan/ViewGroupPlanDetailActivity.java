@@ -86,8 +86,10 @@ public class ViewGroupPlanDetailActivity extends AppCompatActivity {
 
     private void displayGroupPlanInfo() {
         ((TextView)findViewById(R.id.tv_group_plan_name)).setText(groupPlan.getName());
-        ((TextView)findViewById(R.id.tv_group_plan_date)).setText(groupPlan.getDate());
-        ((TextView)findViewById(R.id.tv_group_plan_time)).setText(groupPlan.getTime());
+        ((TextView)findViewById(R.id.tv_group_plan_date))
+                .setText(GlobalMethod.getDateFromMilliseconds(groupPlan.getDateTime(), this));
+        ((TextView)findViewById(R.id.tv_group_plan_time))
+                .setText(GlobalMethod.getTimeFromMilliseconds(groupPlan.getDateTime(), this));
         ((TextView)findViewById(R.id.tv_group_plan_address)).setText(groupPlan.getPlaceAddress());
 
         // retrieve owner name from its ID

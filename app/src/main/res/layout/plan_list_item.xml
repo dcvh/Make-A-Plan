@@ -36,6 +36,14 @@
             android:layout_marginTop="4dp"
             tools:text="Sun 2 July" />
 
+        <TextView
+            android:id="@+id/tv_plan_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            android:layout_marginTop="4dp"
+            tools:text="4:55 PM" />
+
     </LinearLayout>
 
     <TextView

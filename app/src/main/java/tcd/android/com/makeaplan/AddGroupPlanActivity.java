@@ -144,8 +144,7 @@ public class AddGroupPlanActivity extends AppCompatActivity {
         timeFormatPref = sharedPref.getString(SettingsActivity.KEY_PREF_TIME_FORMAT, "");
 
         groupPlan = new GroupPlan("",
-                getFormattedDate(selectedDate, dateFormatPref),
-                getFormattedDate(selectedDate, timeFormatPref),
+                selectedDate.getTimeInMillis(),
                 getResources().getString(R.string.group),
                 userId);
     }
@@ -191,7 +190,7 @@ public class AddGroupPlanActivity extends AppCompatActivity {
                         option.setValue(getFormattedDate(selectedDate, dateFormatPref));
                         ((BaseAdapter)optionListView.getAdapter()).notifyDataSetChanged();
                         // save it
-                        groupPlan.setDate(getFormattedDate(selectedDate, dateFormatPref));
+                        groupPlan.setDateTime(selectedDate.getTimeInMillis());
                     }
                 },
                 Calendar.getInstance().get(Calendar.YEAR),
@@ -211,7 +210,7 @@ public class AddGroupPlanActivity extends AppCompatActivity {
                         option.setValue(getFormattedDate(selectedDate, timeFormatPref));
                         ((BaseAdapter)optionListView.getAdapter()).notifyDataSetChanged();
                         // save it
-                        groupPlan.setTime(getFormattedDate(selectedDate, timeFormatPref));
+                        groupPlan.setDateTime(selectedDate.getTimeInMillis());
                     }
                 },
                 Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + 1,

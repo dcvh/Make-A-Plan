@@ -72,27 +72,29 @@
     <!-- Strings related to Settings -->
     <string name="pref_date_format_title">Date format</string>
     <string-array name="pref_date_format_option_labels">
-        <item>dd/MM/yyyy</item>
-        <item>MM/dd/yyyy</item>
-        <item>yyyy/MM/dd</item>
-        <item>MMM d, yyyy</item>
-        <item>EEEE, MMM d</item>
+        <item>14/03/2012</item>
+        <item>03/14/2012</item>
+        <item>2012/03/14</item>
+        <item>Mar 3, 2012</item>
+        <item>Wed, Mar 3, 2012</item>
+        <item>Wednesday, March 3, 2012</item>
     </string-array>
     <string-array name="pref_date_format_option_values">
         <item>dd/MM/yyyy</item>
         <item>MM/dd/yyyy</item>
         <item>yyyy/MM/dd</item>
         <item>MMM d, yyyy</item>
-        <item>EEEE, MMM d</item>
+        <item>EEE, MMM d, yyyy</item>
+        <item>EEEE, MMMM d, yyyy</item>
     </string-array>
     <string name="pref_date_format_default">dd/MM/yyyy</string>
 
     <!-- Strings related to Settings -->
     <string name="pref_time_format_title">Time format</string>
     <string-array name="pref_time_format_option_labels">
-        <item>hh:mm a</item>
-        <item>HH:mm</item>
-        <item>K:mm a, z</item>
+        <item>01:30 PM</item>
+        <item>13:30</item>
+        <item>13:30 PM, GMT+07:00</item>
     </string-array>
     <string-array name="pref_time_format_option_values">
         <item>hh:mm a</item>
