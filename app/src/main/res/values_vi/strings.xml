@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Make A Plan</string>
+    <string name="app_name">Make A Plan</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -67,16 +67,16 @@
     <string name="complete_action_using">Complete action using</string>
 
     <!--firebase child nodes-->
-    <string name="firebase_users" translatable="false">users</string>
-    <string name="firebase_personal_plan" translatable="false">personalPlan</string>
-    <string name="firebase_group_plan" translatable="false">groupPlan</string>
-    <string name="firebase_plans" translatable="false">plans</string>
-    <string name="firebase_friends" translatable="false">friends</string>
-    <string name="firebase_name" translatable="false">name</string>
-    <string name="title_activity_settings">Settings</string>
+    <string name="firebase_users">users</string>
+    <string name="firebase_personal_plan">personalPlan</string>
+    <string name="firebase_group_plan">groupPlan</string>
+    <string name="firebase_plans">plans</string>
+    <string name="firebase_friends">friends</string>
+    <string name="firebase_name">name</string>
 
     <!--keys-->
     <string name="my_api_key" translatable="false">AIzaSyDiUS6uJoZiBILeJJbzLUQBl6kXZhmaUPQ</string>
+    <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to Settings -->
     <string name="pref_date_format_title">Date format</string>
@@ -96,7 +96,7 @@
         <item>EEE, MMM d, yyyy</item>
         <item>EEEE, MMMM d, yyyy</item>
     </string-array>
-    <string name="pref_date_format_default" translatable="false">dd/MM/yyyy</string>
+    <string name="pref_date_format_default">dd/MM/yyyy</string>
 
     <!-- Strings related to Settings -->
     <string name="pref_time_format_title">Time format</string>
@@ -110,6 +110,6 @@
         <item>HH:mm</item>
         <item>K:mm a, z</item>
     </string-array>
-    <string name="pref_time_format_default" translatable="false">hh:mm a</string>
+    <string name="pref_time_format_default">hh:mm a</string>
 
 </resources>

@@ -37,7 +37,7 @@ public class ViewGroupPlanDetailActivity extends AppCompatActivity {
         this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         this.getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        groupPlan = (GroupPlan) getIntent().getSerializableExtra(getResources().getString(R.string.group));
+        groupPlan = (GroupPlan) getIntent().getSerializableExtra(getString(R.string.group));
 
         displayGroupPlanInfo();
 
@@ -93,8 +93,8 @@ public class ViewGroupPlanDetailActivity extends AppCompatActivity {
         ((TextView)findViewById(R.id.tv_group_plan_address)).setText(groupPlan.getPlaceAddress());
 
         // retrieve owner name from its ID
-        DatabaseReference userDatabaseRef = FirebaseDatabase.getInstance().getReference().child("users");
-        userDatabaseRef.child(groupPlan.getOwner()).child("name")
+        DatabaseReference userDatabaseRef = FirebaseDatabase.getInstance().getReference().child(getString(R.string.firebase_users));
+        userDatabaseRef.child(groupPlan.getOwner()).child(getString(R.string.firebase_name))
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -109,7 +109,7 @@ public class ViewGroupPlanDetailActivity extends AppCompatActivity {
         HashMap invitees = groupPlan.getinvitees();
         if (invitees != null) {
             // attendance
-            String attendance = invitees.size() + " invitee" + (invitees.size() > 1 ? "s" : "");
+            String attendance = invitees.size() + " " + getString(R.string.invitee);
             ((TextView)findViewById(R.id.tv_group_plan_attendance)).setText(attendance);
             // invitees list
             ListView inviteesListView = (ListView) findViewById(R.id.lv_group_plan_invitees);

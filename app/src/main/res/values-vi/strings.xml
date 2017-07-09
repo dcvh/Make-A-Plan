@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="navigation_drawer_open">Mở navigation drawer</string>
+    <string name="navigation_drawer_close">Đóng navigation drawer</string>
+
+    <!--messages-->
+    <string name="welcome_message">Đăng nhập thành công. Chào mừng bạn đến với Make A Plan!</string>
+    <string name="cancel_sign_in_message">Hủy đăng nhập</string>
+    <string name="remove_image_warning">Bạn muốn xóa bức ảnh này?</string>
+    <string name="uploading_message">Xin hãy chờ quá trình đăng tải trong giây lát.</string>
+    <string name="under_development_message">Tính năng này đang trong giai đoạn phát triển.</string>
+    <string name="become_friend_message">đã trở thành bạn bè của bạn.</string>
+    <string name="downloading_message">Xin hãy chờ quá trình tải trong giây lát.</string>
+    <string name="check_network_connection_message">Ứng dụng yêu cầu có kết nối mạng để hoạt động.</string>
+
+    <!--errors-->
+    <string name="name_empty_error">Bạn không thể bỏ trống tên công việc.</string>
+    <string name="note_empty_error">Bạn không thể bỏ trống nội dung công việc.</string>
+    <string name="location_empty_error">Bạn không thể bỏ trống địa điểm của kế hoạch.</string>
+    <string name="create_qr_code_error">Xảy ra lỗi không mong muốn khi tạo mã QR.</string>
+
+    <!--navigation drawer menus-->
+    <string name="current_plans">Kế hoạch hiện tại</string>
+    <string name="overdue_plans">Kế hoạch quá hạn</string>
+    <string name="settings">Cài đặt</string>
+    <string name="my_account">Tài khoản của tôi</string>
+    <string name="help_feeback">Giúp đỡ và phản hồi</string>
+
+    <!--menus-->
+    <string name="sign_out">Đăng xuất</string>
+    <string name="take_photo">Chụp ảnh</string>
+    <string name="gallery">Chọn ảnh</string>
+    <string name="reminder">Nhắc nhở</string>
+    <string name="edit">Chỉnh sửa</string>
+
+    <!--buttons-->
+    <string name="personal">Cá nhân</string>
+    <string name="group">Nhóm</string>
+    <string name="add_friend">Kết bạn</string>
+    <string name="done">Xong</string>
+    <string name="navigate">Điều hướng</string>
+    <string name="yes">Đồng ý</string>
+    <string name="cancel">Hủy bỏ</string>
+    <string name="quit">Thoát</string>
+    <string name="try_again">Thử lại</string>
+
+    <!--labels-->
+    <string name="task">Công việc</string>
+    <string name="group_plan">Kế hoạch nhóm</string>
+    <string name="personal_plan">Kế hoạch cá nhân</string>
+    <string name="task_name_example">vd: Đại học Khoa học Tự nhiên</string>
+    <string name="due_date">Ngày hạn</string>
+    <string name="time">Thời gian</string>
+    <string name="location">Địa điểm</string>
+    <string name="invitees">Người tham gia</string>
+    <string name="invitee">người tham gia</string>
+    <string name="no_invitee">0 người tham gia</string>
+    <string name="choose_invitees">Chọn người tham gia</string>
+    <string name="note">Nội dung</string>
+    <string name="plan_image">Ảnh kế hoạch</string>
+    <string name="account_name">Tên tài khoản</string>
+    <string name="email">Email</string>
+    <string name="number_plans">Số kế hoạch đã tạo</string>
+    <string name="account_id">Tài khoản ID</string>
+    <string name="complete_action_using">Hoàn thành công việc bằng</string>
+    <string name="title_activity_settings">Cài đặt</string>
+
+    <!-- Strings related to Settings -->
+    <string name="pref_date_format_title">Định dạng ngày</string>
+
+    <!-- Strings related to Settings -->
+    <string name="pref_time_format_title">Định dạng thời gian</string>
+</resources>

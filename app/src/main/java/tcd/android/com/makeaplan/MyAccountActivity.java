@@ -31,7 +31,7 @@ public class MyAccountActivity extends AppCompatActivity {
         this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         this.getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        User user = (User) getIntent().getSerializableExtra(getResources().getString(R.string.my_account));
+        User user = (User) getIntent().getSerializableExtra(getString(R.string.my_account));
         ((TextView)findViewById(R.id.tv_account_name)).setText(user.getName());
         ((TextView)findViewById(R.id.tv_account_email)).setText(user.getEmail());
 //        ((TextView)findViewById(R.id.tv_account_number_plans)).setText(user.getPlansList().size());
@@ -41,7 +41,7 @@ public class MyAccountActivity extends AppCompatActivity {
             Bitmap bmp = encodeAsBitmap(user.getId() + "," + user.getName());
             ((ImageView) findViewById(R.id.iv_account_id_qr_code)).setImageBitmap(bmp);
         } catch (Exception e) {
-            Toast.makeText(this, getResources().getString(R.string.create_qr_code_error), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.create_qr_code_error), Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
     }
@@ -63,7 +63,7 @@ public class MyAccountActivity extends AppCompatActivity {
             case R.id.edit_menu:
                 new AlertDialog.Builder(MyAccountActivity.this)
                         .setMessage(R.string.under_development_message)
-                        .setPositiveButton(getResources().getString(R.string.ok), null)
+                        .setPositiveButton(getString(R.string.ok), null)
                         .show();
                 break;
             default:

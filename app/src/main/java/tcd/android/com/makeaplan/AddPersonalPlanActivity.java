@@ -86,11 +86,11 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
             public void onClick(View v) {
                 AlertDialog.Builder adb = new AlertDialog.Builder(AddPersonalPlanActivity.this)
                         .setMessage(R.string.remove_image_warning)
-                        .setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
+                        .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 planImageView.setVisibility(View.GONE);
                             }
-                        }).setNegativeButton(getResources().getString(R.string.cancel), null);
+                        }).setNegativeButton(getString(R.string.cancel), null);
                 adb.show();
             }
         });
@@ -126,7 +126,7 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.setType("image/jpeg");
                 intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                startActivityForResult(Intent.createChooser(intent, "Complete action using"), RC_PHOTO_PICKER);
+                startActivityForResult(Intent.createChooser(intent, getString(R.string.complete_action_using)), RC_PHOTO_PICKER);
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -143,7 +143,7 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     @SuppressWarnings("VisibleForTests") Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                    Snackbar.make(findViewById(android.R.id.content), getResources().getString(R.string.uploading_message), Snackbar.LENGTH_LONG)
+                    Snackbar.make(findViewById(android.R.id.content), getString(R.string.uploading_message), Snackbar.LENGTH_LONG)
                             .show();
                     personalPlan.setImageUrl(downloadUrl.toString());
                     // upload data to Firebase
@@ -161,12 +161,12 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
     }
 
     private void initializeBasicComponents() {
-        userId = getIntent().getStringExtra("userId");
+        userId = getIntent().getStringExtra(getString(R.string.account_id));
 
         // initialize base result
         personalPlan = new PersonalPlan("",
                 selectedDate.getTimeInMillis(),
-                getResources().getString(R.string.personal),
+                getString(R.string.personal),
                 userId);
 
         // update date and time
@@ -178,18 +178,18 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
 
     private void initializeFirebaseComponents() {
         firebaseDatabase = FirebaseDatabase.getInstance();
-        userDatabaseRef = firebaseDatabase.getReference().child("users");
-        personalPlanDatabaseRef = firebaseDatabase.getReference().child("personalPlan");
+        userDatabaseRef = firebaseDatabase.getReference().child(getString(R.string.firebase_users));
+        personalPlanDatabaseRef = firebaseDatabase.getReference().child(getString(R.string.firebase_personal_plan));
 
         firebaseStorage = FirebaseStorage.getInstance();
-        mPlanImageStorageRef = firebaseStorage.getReference().child("personalPlan");
+        mPlanImageStorageRef = firebaseStorage.getReference().child(getString(R.string.firebase_personal_plan));
     }
 
     private boolean validateUserInputs() {
         // validate task name
         String taskName = ((EditText)findViewById(R.id.edt_task_name)).getText().toString();
         if (taskName.length() == 0) {
-            Snackbar.make(findViewById(android.R.id.content), getResources().getString(R.string.name_empty_error), Snackbar.LENGTH_LONG)
+            Snackbar.make(findViewById(android.R.id.content), getString(R.string.name_empty_error), Snackbar.LENGTH_LONG)
                     .show();
             return false;
         }
@@ -197,7 +197,7 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
         // validate note content
         String noteContent = ((EditText)findViewById(R.id.edt_note_content)).getText().toString();
         if (noteContent.length() == 0) {
-            Snackbar.make(findViewById(android.R.id.content), getResources().getString(R.string.note_empty_error), Snackbar.LENGTH_LONG)
+            Snackbar.make(findViewById(android.R.id.content), getString(R.string.note_empty_error), Snackbar.LENGTH_LONG)
                     .show();
             return false;
         }
@@ -248,7 +248,7 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
     }
 
     private void createPlanInSingleInvitee(final String inviteeId, final String personalPlanId) {
-        userDatabaseRef.child(inviteeId).child("plans").addListenerForSingleValueEvent(new ValueEventListener() {
+        userDatabaseRef.child(inviteeId).child(getString(R.string.firebase_plans)).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // get current plans list from Firebase
@@ -258,9 +258,9 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
                     plansRef = new HashMap<String, String>();
                 }
                 // put new plan to map
-                plansRef.put(personalPlanId, getResources().getString(R.string.personal));
+                plansRef.put(personalPlanId, getString(R.string.personal));
                 // and update it to Firebase
-                userDatabaseRef.child(inviteeId).child("plans").setValue(plansRef);
+                userDatabaseRef.child(inviteeId).child(getString(R.string.firebase_plans)).setValue(plansRef);
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {}

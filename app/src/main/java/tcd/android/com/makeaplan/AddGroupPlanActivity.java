@@ -36,6 +36,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 import tcd.android.com.makeaplan.Adapter.PlanOptionListAdapter;
+import tcd.android.com.makeaplan.Entities.GlobalMethod;
 import tcd.android.com.makeaplan.Entities.GroupPlan;
 import tcd.android.com.makeaplan.Entities.PlanOption;
 
@@ -57,8 +58,6 @@ public class AddGroupPlanActivity extends AppCompatActivity {
     private GroupPlan groupPlan;            // this contains the result
     private Calendar selectedDate = Calendar.getInstance();
     private int locationOptionIndex = -1;   // this is the index of location option in list view
-    private String dateFormatPref;
-    private String timeFormatPref;
 
     // manage friends list
     HashMap<String, String> friendsList;
@@ -82,14 +81,14 @@ public class AddGroupPlanActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 PlanOption option = ((PlanOption)parent.getAdapter().getItem(position));
                 String title = option.getTitle();
-                if (title.equals(getResources().getString(R.string.due_date))) {
+                if (title.equals(getString(R.string.due_date))) {
                     choosePlanDueDate(option);
-                } else if (title.equals(getResources().getString(R.string.time))) {
+                } else if (title.equals(getString(R.string.time))) {
                     choosePlanTime(option);
-                } else if (title.equals(getResources().getString(R.string.location))) {
+                } else if (title.equals(getString(R.string.location))) {
                     locationOptionIndex = position;
                     choosePlanLocation();
-                } else if (title.equals(getResources().getString(R.string.invitees))) {
+                } else if (title.equals(getString(R.string.invitees))) {
                     chooseInvitees(option);
                 }
             }
@@ -103,13 +102,13 @@ public class AddGroupPlanActivity extends AppCompatActivity {
                 // get task name
                 String taskName = ((EditText)findViewById(R.id.edt_task_name)).getText().toString();
                 if (taskName.length() == 0) {
-                    Snackbar.make(view, getResources().getString(R.string.name_empty_error), Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(view, getString(R.string.name_empty_error), Snackbar.LENGTH_LONG).show();
                     return;
                 }
                 groupPlan.setName(taskName);
                 // validate location
                 if (groupPlan.getPlaceLatLng() == null) {
-                    Snackbar.make(view, getResources().getString(R.string.location_empty_error), Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(view, getString(R.string.location_empty_error), Snackbar.LENGTH_LONG).show();
                     return;
                 }
                 // get group plan ID
@@ -136,23 +135,18 @@ public class AddGroupPlanActivity extends AppCompatActivity {
     }
 
     private void initializeBasicComponents() {
-        userId = getIntent().getStringExtra("userId");
-
-        // get chosen format from Settings
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        dateFormatPref = sharedPref.getString(SettingsActivity.KEY_PREF_DATE_FORMAT, "");
-        timeFormatPref = sharedPref.getString(SettingsActivity.KEY_PREF_TIME_FORMAT, "");
-
+        userId = getIntent().getStringExtra(getString(R.string.account_id));
+        
         groupPlan = new GroupPlan("",
                 selectedDate.getTimeInMillis(),
-                getResources().getString(R.string.group),
+                getString(R.string.group),
                 userId);
     }
 
     private void initializeFirebaseComponents() {
         firebaseDatabase = FirebaseDatabase.getInstance();
-        userDatabaseRef = firebaseDatabase.getReference().child("users");
-        groupPlanDatabaseRef = firebaseDatabase.getReference().child("groupPlan");
+        userDatabaseRef = firebaseDatabase.getReference().child(getString(R.string.firebase_users));
+        groupPlanDatabaseRef = firebaseDatabase.getReference().child(getString(R.string.firebase_group_plan));
     }
 
     private void initializeGroupPlanOptionListView() {
@@ -160,19 +154,19 @@ public class AddGroupPlanActivity extends AppCompatActivity {
         optionListAdapter = new PlanOptionListAdapter(this);
         optionListView.setAdapter(optionListAdapter);
         // due date option
-        String today = getFormattedDate(selectedDate, dateFormatPref);
-        optionListAdapter.add(new PlanOption(getResources().getString(R.string.due_date),
-                today, R.drawable.ic_date_black_48px));
+        optionListAdapter.add(new PlanOption(getString(R.string.due_date),
+                GlobalMethod.getDateFromMilliseconds(selectedDate.getTimeInMillis(), this),
+                R.drawable.ic_date_black_48px));
         // time option
-        String currentTime = getFormattedDate(selectedDate, timeFormatPref);
-        optionListAdapter.add(new PlanOption(getResources().getString(R.string.time),
-                currentTime, R.drawable.ic_time_black_48px));
+        optionListAdapter.add(new PlanOption(getString(R.string.time),
+                GlobalMethod.getTimeFromMilliseconds(selectedDate.getTimeInMillis(), this),
+                R.drawable.ic_time_black_48px));
         // location option
-        optionListAdapter.add(new PlanOption(getResources().getString(R.string.location),
+        optionListAdapter.add(new PlanOption(getString(R.string.location),
                 "", R.drawable.ic_location_black_48px));
         // friends option
-        optionListAdapter.add(new PlanOption(getResources().getString(R.string.invitees),
-                "0 invitees", R.drawable.ic_invitee_black_48px));
+        optionListAdapter.add(new PlanOption(getString(R.string.invitees),
+                getString(R.string.no_invitee), R.drawable.ic_invitee_black_48px));
     }
 
     private String getFormattedDate(Calendar date, String format) {
@@ -187,7 +181,8 @@ public class AddGroupPlanActivity extends AppCompatActivity {
                         selectedDate.set(Calendar.YEAR, year);
                         selectedDate.set(Calendar.MONTH, month);
                         selectedDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                        option.setValue(getFormattedDate(selectedDate, dateFormatPref));
+                        option.setValue(GlobalMethod
+                                .getDateFromMilliseconds(selectedDate.getTimeInMillis(), AddGroupPlanActivity.this));
                         ((BaseAdapter)optionListView.getAdapter()).notifyDataSetChanged();
                         // save it
                         groupPlan.setDateTime(selectedDate.getTimeInMillis());
@@ -207,7 +202,8 @@ public class AddGroupPlanActivity extends AppCompatActivity {
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                         selectedDate.set(Calendar.HOUR_OF_DAY, hourOfDay);
                         selectedDate.set(Calendar.MINUTE, minute);
-                        option.setValue(getFormattedDate(selectedDate, timeFormatPref));
+                        option.setValue(GlobalMethod
+                                .getTimeFromMilliseconds(selectedDate.getTimeInMillis(), AddGroupPlanActivity.this));
                         ((BaseAdapter)optionListView.getAdapter()).notifyDataSetChanged();
                         // save it
                         groupPlan.setDateTime(selectedDate.getTimeInMillis());
@@ -233,7 +229,7 @@ public class AddGroupPlanActivity extends AppCompatActivity {
 
     private void chooseInvitees(final PlanOption option) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getResources().getString(R.string.invitees));
+        builder.setTitle(getString(R.string.invitees));
 
         // add a checkbox list
         builder.setMultiChoiceItems(friendsNameList, checkedItems,
@@ -245,7 +241,7 @@ public class AddGroupPlanActivity extends AppCompatActivity {
         });
 
         // add OK and Cancel buttons
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // user clicked OK
@@ -258,11 +254,11 @@ public class AddGroupPlanActivity extends AppCompatActivity {
                     }
                 }
                 groupPlan.setinvitees(invitees);
-                option.setValue(String.valueOf(count) + " invitees");
+                option.setValue(String.valueOf(count) + " " + getString(R.string.invitee));
                 ((BaseAdapter)optionListView.getAdapter()).notifyDataSetChanged();
             }
         });
-        builder.setNegativeButton("Cancel", null);
+        builder.setNegativeButton(getString(R.string.cancel), null);
 
         // create and show the alert dialog
         AlertDialog dialog = builder.create();
@@ -270,7 +266,7 @@ public class AddGroupPlanActivity extends AppCompatActivity {
     }
 
     private void retrieveFriendsListFromFirebase() {
-        userDatabaseRef.child(userId).child("friends").addListenerForSingleValueEvent(new ValueEventListener() {
+        userDatabaseRef.child(userId).child(getString(R.string.firebase_friends)).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 GenericTypeIndicator<HashMap<String, String>> t = new GenericTypeIndicator<HashMap<String, String>>() {};
@@ -285,7 +281,7 @@ public class AddGroupPlanActivity extends AppCompatActivity {
     }
 
     private void createPlanInSingleInvitee(final String inviteeId, final String groupPlanId) {
-        userDatabaseRef.child(inviteeId).child("plans").addListenerForSingleValueEvent(new ValueEventListener() {
+        userDatabaseRef.child(inviteeId).child(getString(R.string.firebase_plans)).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // get current plans list from Firebase
@@ -295,9 +291,9 @@ public class AddGroupPlanActivity extends AppCompatActivity {
                     plansRef = new HashMap<String, String>();
                 }
                 // put new plan to map
-                plansRef.put(groupPlanId, getResources().getString(R.string.group));
+                plansRef.put(groupPlanId, getString(R.string.group));
                 // and update it to Firebase
-                userDatabaseRef.child(inviteeId).child("plans").setValue(plansRef);
+                userDatabaseRef.child(inviteeId).child(getString(R.string.firebase_plans)).setValue(plansRef);
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {}

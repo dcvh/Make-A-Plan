@@ -102,16 +102,13 @@ public class MainActivity extends AppCompatActivity
         initializeFirebaseComponents();
         initializeNavigationDrawerComponents(toolbar);
 
-        // Register the listener
-        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
-
         // personal plan action
         FloatingActionButton personalFAB = (FloatingActionButton) findViewById(R.id.fab_personal);
         personalFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, AddPersonalPlanActivity.class);
-                intent.putExtra("userId", userId);
+                intent.putExtra(getString(R.string.account_id), userId);
                 startActivity(intent);
             }
         });
@@ -121,7 +118,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, AddGroupPlanActivity.class);
-                intent.putExtra("userId", userId);
+                intent.putExtra(getString(R.string.account_id), userId);
                 startActivity(intent);
             }
         });
@@ -140,15 +137,15 @@ public class MainActivity extends AppCompatActivity
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Plan plan = (Plan) parent.getAdapter().getItem(position);
                 // a group plan
-                if (plan.getTag().equals(getResources().getString(R.string.group))) {
+                if (plan.getTag().equals(getString(R.string.group))) {
                     Intent groupPlanDetailIntent = new Intent(MainActivity.this, ViewGroupPlanDetailActivity.class);
-                    groupPlanDetailIntent.putExtra(getResources().getString(R.string.group), (GroupPlan)plan);
+                    groupPlanDetailIntent.putExtra(getString(R.string.group), (GroupPlan)plan);
                     startActivity(groupPlanDetailIntent);
                 }
                 // a personal plan
-                else if (plan.getTag().equals(getResources().getString(R.string.personal))) {
+                else if (plan.getTag().equals(getString(R.string.personal))) {
                     Intent personalPlanDetailIntent = new Intent(MainActivity.this, ViewPersonalPlanDetailActivity.class);
-                    personalPlanDetailIntent.putExtra(getResources().getString(R.string.personal), (PersonalPlan)plan);
+                    personalPlanDetailIntent.putExtra(getString(R.string.personal), (PersonalPlan)plan);
                     startActivity(personalPlanDetailIntent);
                 }
             }
@@ -212,7 +209,7 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.nav_account_info:
                 Intent accountIntent = new Intent(this, MyAccountActivity.class);
-                accountIntent.putExtra(getResources().getString(R.string.my_account), user);
+                accountIntent.putExtra(getString(R.string.my_account), user);
                 startActivity(accountIntent);
                 break;
             case R.id.nav_settings:
@@ -282,15 +279,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void addNewFriendToFirebase(final String friendInfo) {
-        mUserDatabaseRef.child(userId).child("friends").addListenerForSingleValueEvent(new ValueEventListener() {
+        mUserDatabaseRef.child(userId).child(getString(R.string.firebase_friends)).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 GenericTypeIndicator<HashMap<String, String>> t = new GenericTypeIndicator<HashMap<String, String>>() {};
                 HashMap<String, String> friendsList = dataSnapshot.getValue(t);
                 String[] results = friendInfo.split(",");
                 friendsList.put(results[0], results[1]);
-                mUserDatabaseRef.child(userId).child("friends").setValue(friendsList);
-                Toast.makeText(MainActivity.this, results[1] + " " + getResources().getString(R.string.become_friend_message),
+                mUserDatabaseRef.child(userId).child(getString(R.string.firebase_friends)).setValue(friendsList);
+                Toast.makeText(MainActivity.this, results[1] + " " + getString(R.string.become_friend_message),
                         Toast.LENGTH_SHORT).show();
             }
             @Override
@@ -299,18 +296,22 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initializeBasicComponents() {
+        // plans list view
         planListView = (ListView) findViewById(R.id.plan_list_view);
         planListAdapter = new PlanListAdapter(this);
         planListView.setAdapter(planListAdapter);
+
+        // Register the listener
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
     }
 
     private void initializeFirebaseComponents() {
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseStorage = FirebaseStorage.getInstance();
-        mUserDatabaseRef = mFirebaseDatabase.getReference().child("users");
-        mGroupPlanDatabaseRef = mFirebaseDatabase.getReference().child("groupPlan");
-        mPersonalPlanDatabaseRef = mFirebaseDatabase.getReference().child("personalPlan");
+        mUserDatabaseRef = mFirebaseDatabase.getReference().child(getString(R.string.firebase_users));
+        mGroupPlanDatabaseRef = mFirebaseDatabase.getReference().child(getString(R.string.firebase_group_plan));
+        mPersonalPlanDatabaseRef = mFirebaseDatabase.getReference().child(getString(R.string.firebase_personal_plan));
 
         mFirebaseAuth = FirebaseAuth.getInstance();
 
@@ -385,13 +386,13 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void onCancelled(DatabaseError databaseError) {}
             };
-            mUserDatabaseRef.child(userId).child("plans").addChildEventListener(mChildEventListener);
+            mUserDatabaseRef.child(userId).child(getString(R.string.firebase_plans)).addChildEventListener(mChildEventListener);
         }
     }
 
     private void onSignedOutCleanUp() {
         if (mChildEventListener != null) {
-            mUserDatabaseRef.child(userId).child("plans").removeEventListener(mChildEventListener);
+            mUserDatabaseRef.child(userId).child(getString(R.string.firebase_plans)).removeEventListener(mChildEventListener);
             mChildEventListener = null;
         }
         planListAdapter.clear();
@@ -399,7 +400,7 @@ public class MainActivity extends AppCompatActivity
 
     private void createPlanInListView(DataSnapshot dataSnapshot) {
         // get the plan
-        if (dataSnapshot.getValue(String.class).equals(getResources().getString(R.string.group))) {
+        if (dataSnapshot.getValue(String.class).equals(getString(R.string.group))) {
             mGroupPlanDatabaseRef.child(dataSnapshot.getKey())
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -415,7 +416,7 @@ public class MainActivity extends AppCompatActivity
                         public void onCancelled(DatabaseError databaseError) {}
                     });
         }
-        else if (dataSnapshot.getValue(String.class).equals(getResources().getString(R.string.personal))) {
+        else if (dataSnapshot.getValue(String.class).equals(getString(R.string.personal))) {
             mPersonalPlanDatabaseRef.child(dataSnapshot.getKey())
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -435,7 +436,7 @@ public class MainActivity extends AppCompatActivity
 
     private void showDownloadProgressDialog() {
         downloadProgressDialog = new ProgressDialog(this);
-        downloadProgressDialog.setMessage(getResources().getString(R.string.downloading_message));
+        downloadProgressDialog.setMessage(getString(R.string.downloading_message));
         downloadProgressDialog.setCanceledOnTouchOutside(false);
         downloadProgressDialog.show();
     }

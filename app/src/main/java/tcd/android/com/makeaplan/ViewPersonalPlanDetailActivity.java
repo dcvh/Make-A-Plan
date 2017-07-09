@@ -28,7 +28,7 @@ public class ViewPersonalPlanDetailActivity extends AppCompatActivity {
         this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         this.getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        personalPlan = (PersonalPlan) getIntent().getSerializableExtra(getResources().getString(R.string.personal));
+        personalPlan = (PersonalPlan) getIntent().getSerializableExtra(getString(R.string.personal));
 
         displaypersonalPlanInfo();
 
