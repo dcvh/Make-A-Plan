@@ -279,12 +279,10 @@ public class MainActivity extends AppCompatActivity
             if (resultCode == ResultCodes.OK) {
                 Toast.makeText(this, R.string.welcome_message, Toast.LENGTH_SHORT).show();
                 return;
-            } else {
-                if (resultCode == ResultCodes.CANCELED) {
-                    // User cancelled
-                    Toast.makeText(MainActivity.this, R.string.cancel_sign_in_message, Toast.LENGTH_SHORT).show();
-                    finish();
-                }
+            } else if (resultCode == RESULT_CANCELED) {
+                // User cancelled
+                // Toast.makeText(MainActivity.this, R.string.cancel_sign_in_message, Toast.LENGTH_SHORT).show();
+                // finish();
             }
         }
         // updated status value
@@ -353,8 +351,10 @@ public class MainActivity extends AppCompatActivity
                                     .createSignInIntentBuilder()
                                     .setIsSmartLockEnabled(false)
                                     .setProviders(
-                                            Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
-                                                    new AuthUI.IdpConfig.Builder(AuthUI.FACEBOOK_PROVIDER).build()))
+                                            Arrays.asList(
+//                                                    new AuthUI.IdpConfig.Builder(AuthUI.FACEBOOK_PROVIDER).build(),
+                                                    new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build()
+                                            ))
                                     .build(),
                             RC_SIGN_IN);
                 } else {

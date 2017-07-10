@@ -81,6 +81,8 @@
 
     <!--keys-->
     <string name="my_api_key" translatable="false">AIzaSyDiUS6uJoZiBILeJJbzLUQBl6kXZhmaUPQ</string>
+    <string name="facebook_application_id" translatable="false">500750373599679</string>
+    <string name="facebook_login_protocol_scheme" translatable="false">fb500750373599679</string>
 
     <!-- Strings related to Settings -->
     <string name="pref_date_format_title">Date format</string>
