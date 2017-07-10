@@ -1,13 +1,9 @@
 package tcd.android.com.makeaplan;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -16,25 +12,20 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.auth.ResultCodes;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
-import com.google.android.gms.vision.barcode.Barcode;
-import com.google.android.gms.vision.barcode.BarcodeDetector;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -45,28 +36,22 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.MultiFormatWriter;
-import com.google.zxing.WriterException;
-import com.google.zxing.common.BitMatrix;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import java.util.Arrays;
 import java.util.HashMap;
 
-import tcd.android.com.makeaplan.Adapter.PlanListAdapter;
+import tcd.android.com.makeaplan.Adapter.PlanAdapter;
 import tcd.android.com.makeaplan.Entities.GlobalMethod;
 import tcd.android.com.makeaplan.Entities.GroupPlan;
 import tcd.android.com.makeaplan.Entities.PersonalPlan;
 import tcd.android.com.makeaplan.Entities.Plan;
 import tcd.android.com.makeaplan.Entities.User;
 
-import static android.graphics.Color.BLACK;
-import static android.graphics.Color.WHITE;
-
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, SharedPreferences.OnSharedPreferenceChangeListener {
+        implements NavigationView.OnNavigationItemSelectedListener, SharedPreferences.OnSharedPreferenceChangeListener,
+                    PlanAdapter.ListItemClickListener {
 
     private static final String TAG = "MainActivity";
     private static final int RC_SIGN_IN = 1;
@@ -83,8 +68,8 @@ public class MainActivity extends AppCompatActivity
     private ChildEventListener mChildEventListener;
 
     // plan list view components
-    private ListView planListView;
-    private PlanListAdapter planListAdapter;
+    private RecyclerView mPlansListRecyclerView;
+    private PlanAdapter mPlanAdapter;
 
     private String userId = null;
     private User user;
@@ -147,27 +132,6 @@ public class MainActivity extends AppCompatActivity
                 // initialize zxing scanner
                 IntentIntegrator integrator = new IntentIntegrator(MainActivity.this);
                 integrator.initiateScan();
-            }
-        });
-        // each plan action
-        planListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Plan plan = (Plan) parent.getAdapter().getItem(position);
-                // a group plan
-                if (plan.getTag().equals(getString(R.string.group))) {
-                    Intent groupPlanDetailIntent = new Intent(MainActivity.this, ViewGroupPlanDetailActivity.class);
-                    groupPlanDetailIntent.putExtra(getString(R.string.group), (GroupPlan)plan);
-                    groupPlanDetailIntent.putExtra(getString(R.string.account_id), userId);
-                    selectedGroupPlanPosition = position;
-                    startActivityForResult(groupPlanDetailIntent, RC_VIEW_GROUP_PLAN);
-                }
-                // a personal plan
-                else if (plan.getTag().equals(getString(R.string.personal))) {
-                    Intent personalPlanDetailIntent = new Intent(MainActivity.this, ViewPersonalPlanDetailActivity.class);
-                    personalPlanDetailIntent.putExtra(getString(R.string.personal), (PersonalPlan)plan);
-                    startActivity(personalPlanDetailIntent);
-                }
             }
         });
     }
@@ -266,9 +230,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(SettingsActivity.KEY_PREF_DATE_FORMAT)) {
-            planListView.invalidateViews();
+            mPlanAdapter.notifyDataSetChanged();
         } else if (key.equals(SettingsActivity.KEY_PREF_TIME_FORMAT)) {
-            planListView.invalidateViews();
+            mPlanAdapter.notifyDataSetChanged();
         }
     }
 
@@ -297,10 +261,7 @@ public class MainActivity extends AppCompatActivity
         else if (requestCode == RC_VIEW_GROUP_PLAN) {
             if (resultCode == ResultCodes.OK) {
                 int updatedStatus = data.getIntExtra(getString(R.string.firebase_invitees_status), -1);
-                HashMap<String, Integer> inviteesStatus =
-                        ((GroupPlan)planListAdapter.getItem(selectedGroupPlanPosition)).getInviteesStatus();
-                inviteesStatus.put(userId, updatedStatus);
-                ((GroupPlan)planListAdapter.getItem(selectedGroupPlanPosition)).setInviteesStatus(inviteesStatus);
+                mPlanAdapter.updateInviteesStatus(selectedGroupPlanPosition, updatedStatus, userId);
             }
         }
     }
@@ -326,10 +287,13 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initializeBasicComponents() {
-        // plans list view
-        planListView = (ListView) findViewById(R.id.plan_list_view);
-        planListAdapter = new PlanListAdapter(this);
-        planListView.setAdapter(planListAdapter);
+        // plans list recycler view
+        mPlansListRecyclerView = (RecyclerView) findViewById(R.id.rv_plans_list);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        mPlansListRecyclerView.setLayoutManager(layoutManager);
+        mPlansListRecyclerView.setHasFixedSize(true);
+        mPlanAdapter = new PlanAdapter(this);
+        mPlansListRecyclerView.setAdapter(mPlanAdapter);
 
         // Register the listener
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
@@ -408,6 +372,25 @@ public class MainActivity extends AppCompatActivity
         };
     }
 
+    @Override
+    public void onListItemClick(int position) {
+        Plan plan = mPlanAdapter.getPlan(position);
+        // a group plan
+        if (plan.getTag().equals(getString(R.string.group))) {
+            Intent groupPlanDetailIntent = new Intent(MainActivity.this, ViewGroupPlanDetailActivity.class);
+            groupPlanDetailIntent.putExtra(getString(R.string.group), (GroupPlan) plan);
+            groupPlanDetailIntent.putExtra(getString(R.string.account_id), userId);
+            selectedGroupPlanPosition = position;
+            startActivityForResult(groupPlanDetailIntent, RC_VIEW_GROUP_PLAN);
+        }
+        // a personal plan
+        else if (plan.getTag().equals(getString(R.string.personal))) {
+            Intent personalPlanDetailIntent = new Intent(MainActivity.this, ViewPersonalPlanDetailActivity.class);
+            personalPlanDetailIntent.putExtra(getString(R.string.personal), (PersonalPlan) plan);
+            startActivity(personalPlanDetailIntent);
+        }
+    }
+
     private void onSignedInInitialize() {
         if (mChildEventListener == null) {
             if (GlobalMethod.isNetworkConnected(this)) {
@@ -421,13 +404,11 @@ public class MainActivity extends AppCompatActivity
                 }
                 @Override
                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                    planListAdapter.clear();
+                    mPlanAdapter.clear();
                     createPlanInListView(dataSnapshot);
                 }
                 @Override
                 public void onChildRemoved(DataSnapshot dataSnapshot) {
-                    planListAdapter.clear();
-                    createPlanInListView(dataSnapshot);
                 }
                 @Override
                 public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
@@ -444,7 +425,7 @@ public class MainActivity extends AppCompatActivity
             mChildEventListener = null;
         }
         userId = null;
-        planListAdapter.clear();
+        mPlanAdapter.clear();
     }
 
     private void createPlanInListView(DataSnapshot dataSnapshot) {
@@ -456,7 +437,8 @@ public class MainActivity extends AppCompatActivity
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             GroupPlan groupPlan = dataSnapshot.getValue(GroupPlan.class);
                             if (groupPlan != null) {
-                                planListAdapter.add(groupPlan);
+                                mPlanAdapter.addPlan(groupPlan);
+                                mPlanAdapter.notifyDataSetChanged();
                             }
                             if (downloadProgressDialog != null) {
                                 downloadProgressDialog.dismiss();
@@ -474,7 +456,8 @@ public class MainActivity extends AppCompatActivity
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             PersonalPlan personalPlan = dataSnapshot.getValue(PersonalPlan.class);
                             if (personalPlan != null) {
-                                planListAdapter.add(personalPlan);
+                                mPlanAdapter.addPlan(personalPlan);
+                                mPlanAdapter.notifyDataSetChanged();
                             }
                             if (downloadProgressDialog != null) {
                                 downloadProgressDialog.dismiss();

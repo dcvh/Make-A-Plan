@@ -64,7 +64,7 @@ public class ViewGroupPlanDetailActivity extends AppCompatActivity {
                 + groupPlan.getPlaceLatLng()
                 + "&zoom=16&size=1000x300";
         ImageView locationImageView = (ImageView) findViewById(R.id.iv_group_plan_location);
-        Glide.with(this).load(imageUrl).into(locationImageView);
+        Glide.with(this).load(imageUrl).centerCrop().into(locationImageView);
 //        Picasso.with(this).load(imageUrl).fit().centerCrop().into(locationImageView);
 
         // navigate button
