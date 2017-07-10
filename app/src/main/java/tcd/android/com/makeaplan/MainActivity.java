@@ -32,6 +32,7 @@ import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.auth.ResultCodes;
 import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 import com.google.firebase.auth.FirebaseAuth;
@@ -106,11 +107,16 @@ public class MainActivity extends AppCompatActivity
         initializeFirebaseComponents();
         initializeFirebaseAuthentication();
 
+        // floating action button
+        final FloatingActionMenu fabMenu = (FloatingActionMenu) findViewById(R.id.fab_add_menu);
+        fabMenu.setClosedOnTouchOutside(true);
+
         // personal plan action
         FloatingActionButton personalFAB = (FloatingActionButton) findViewById(R.id.fab_personal);
         personalFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                fabMenu.close(true);
                 Intent intent = new Intent(MainActivity.this, AddPersonalPlanActivity.class);
                 intent.putExtra(getString(R.string.account_id), userId);
                 startActivity(intent);
@@ -121,6 +127,7 @@ public class MainActivity extends AppCompatActivity
         groupFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                fabMenu.close(true);
                 Intent intent = new Intent(MainActivity.this, AddGroupPlanActivity.class);
                 intent.putExtra(getString(R.string.account_id), userId);
                 startActivity(intent);
@@ -131,6 +138,7 @@ public class MainActivity extends AppCompatActivity
         addFriendFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                fabMenu.close(true);
                 // check network requirement
                 if (!GlobalMethod.isNetworkConnected(MainActivity.this)) {
                     Snackbar.make(findViewById(android.R.id.content), getString(R.string.feature_requires_network_error), Snackbar.LENGTH_LONG).show();

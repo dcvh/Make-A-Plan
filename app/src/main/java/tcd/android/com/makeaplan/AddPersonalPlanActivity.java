@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -277,7 +278,7 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
                 if (resultCode == RESULT_OK) {
                     selectedImageUri = data.getData();
                     // display selected image
-                    planImageView.setImageURI(selectedImageUri);
+                    Glide.with(this).load(selectedImageUri).into(planImageView);
                     planImageView.setVisibility(View.VISIBLE);
                 }
                 break;

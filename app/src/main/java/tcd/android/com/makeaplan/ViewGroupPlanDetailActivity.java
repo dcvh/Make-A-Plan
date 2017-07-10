@@ -20,6 +20,7 @@ import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -63,7 +64,8 @@ public class ViewGroupPlanDetailActivity extends AppCompatActivity {
                 + groupPlan.getPlaceLatLng()
                 + "&zoom=16&size=1000x300";
         ImageView locationImageView = (ImageView) findViewById(R.id.iv_group_plan_location);
-        Picasso.with(this).load(imageUrl).fit().centerCrop().into(locationImageView);
+        Glide.with(this).load(imageUrl).into(locationImageView);
+//        Picasso.with(this).load(imageUrl).fit().centerCrop().into(locationImageView);
 
         // navigate button
         ((TextView) findViewById(R.id.tv_navigate)).setOnClickListener(new View.OnClickListener() {

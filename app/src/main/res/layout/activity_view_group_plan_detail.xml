@@ -163,7 +163,8 @@
         <ListView
             android:id="@+id/lv_group_plan_invitees"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp" >
 
         </ListView>
 
