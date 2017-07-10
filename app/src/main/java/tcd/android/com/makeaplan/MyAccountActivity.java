@@ -95,5 +95,4 @@ public class MyAccountActivity extends AppCompatActivity {
         bitmap.setPixels(pixels, 0, width, 0, 0, w, h);
         return bitmap;
     }
-
 }

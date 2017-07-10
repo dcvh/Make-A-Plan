@@ -291,7 +291,8 @@ public class MainActivity extends AppCompatActivity
         else if (requestCode == RC_VIEW_GROUP_PLAN) {
             if (resultCode == ResultCodes.OK) {
                 int updatedStatus = data.getIntExtra(getString(R.string.firebase_invitees_status), -1);
-                HashMap<String, Integer> inviteesStatus = ((GroupPlan)planListAdapter.getItem(selectedGroupPlanPosition)).getInviteesStatus();
+                HashMap<String, Integer> inviteesStatus =
+                        ((GroupPlan)planListAdapter.getItem(selectedGroupPlanPosition)).getInviteesStatus();
                 inviteesStatus.put(userId, updatedStatus);
                 ((GroupPlan)planListAdapter.getItem(selectedGroupPlanPosition)).setInviteesStatus(inviteesStatus);
             }
@@ -304,6 +305,9 @@ public class MainActivity extends AppCompatActivity
             public void onDataChange(DataSnapshot dataSnapshot) {
                 GenericTypeIndicator<HashMap<String, String>> t = new GenericTypeIndicator<HashMap<String, String>>() {};
                 HashMap<String, String> friendsList = dataSnapshot.getValue(t);
+                if (friendsList == null) {
+                    friendsList = new HashMap<String, String>();
+                }
                 String[] results = friendInfo.split(",");
                 friendsList.put(results[0], results[1]);
                 mUserDatabaseRef.child(userId).child(getString(R.string.firebase_friends)).setValue(friendsList);
@@ -443,7 +447,9 @@ public class MainActivity extends AppCompatActivity
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             GroupPlan groupPlan = dataSnapshot.getValue(GroupPlan.class);
-                            planListAdapter.add(groupPlan);
+                            if (groupPlan != null) {
+                                planListAdapter.add(groupPlan);
+                            }
                             if (downloadProgressDialog != null) {
                                 downloadProgressDialog.dismiss();
                             }
@@ -459,7 +465,9 @@ public class MainActivity extends AppCompatActivity
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             PersonalPlan personalPlan = dataSnapshot.getValue(PersonalPlan.class);
-                            planListAdapter.add(personalPlan);
+                            if (personalPlan != null) {
+                                planListAdapter.add(personalPlan);
+                            }
                             if (downloadProgressDialog != null) {
                                 downloadProgressDialog.dismiss();
                             }
@@ -472,14 +480,19 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void showDownloadProgressDialog() {
+        // create the dialog
+        downloadProgressDialog = new ProgressDialog(MainActivity.this);
+        downloadProgressDialog.setMessage(getString(R.string.downloading_message));
+        downloadProgressDialog.setCanceledOnTouchOutside(false);
+        downloadProgressDialog.show();
+        // dismiss it if there is nothing to download
         mUserDatabaseRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.hasChild(getString(R.string.firebase_plans))) {
-                    downloadProgressDialog = new ProgressDialog(MainActivity.this);
-                    downloadProgressDialog.setMessage(getString(R.string.downloading_message));
-                    downloadProgressDialog.setCanceledOnTouchOutside(false);
-                    downloadProgressDialog.show();
+                if (!dataSnapshot.hasChild(getString(R.string.firebase_plans))) {
+                    if (downloadProgressDialog != null) {
+                        downloadProgressDialog.dismiss();
+                    }
                 }
             }
 

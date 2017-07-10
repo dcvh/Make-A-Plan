@@ -114,8 +114,11 @@ public class ViewGroupPlanDetailActivity extends AppCompatActivity {
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             GenericTypeIndicator<HashMap<String, Integer>> t = new GenericTypeIndicator<HashMap<String, Integer>>() {};
                             HashMap<String, Integer> inviteesStatus = dataSnapshot.getValue(t);
+                            if (inviteesStatus == null) {
+                                inviteesStatus = new HashMap<String, Integer>();
+                            }
+
                             inviteesStatus.put(userId, switchStatus.isChecked() ? 1 : 0);
-                            groupPlan.setInviteesStatus(inviteesStatus);
                             groupPlanDatabaseRef.child(groupPlan.getId()).child(getString(R.string.firebase_invitees_status))
                                     .setValue(inviteesStatus);
 
@@ -148,7 +151,10 @@ public class ViewGroupPlanDetailActivity extends AppCompatActivity {
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        ((TextView) findViewById(R.id.tv_group_plan_owner)).setText(dataSnapshot.getValue(String.class));
+                        String ownerName = dataSnapshot.getValue(String.class);
+                        if (ownerName != null) {
+                            ((TextView) findViewById(R.id.tv_group_plan_owner)).setText(ownerName);
+                        }
                     }
 
                     @Override
@@ -185,7 +191,7 @@ public class ViewGroupPlanDetailActivity extends AppCompatActivity {
         }
     }
 
-    void setListViewHeightBasedOnChildren(ListView listView, ArrayAdapter adapter) {
+    private void setListViewHeightBasedOnChildren(ListView listView, ArrayAdapter adapter) {
         int totalHeight = 0;
         // iterate through adapter
         for (int i = 0; i < adapter.getCount(); i++) {
