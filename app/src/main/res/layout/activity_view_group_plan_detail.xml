@@ -73,13 +73,15 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/tv_status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="@string/going"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textStyle="bold"
-                    android:layout_gravity="right"/>
+                    android:layout_gravity="right"
+                    android:visibility="gone"/>
 
                 <Switch
                     android:id="@+id/switch_status"

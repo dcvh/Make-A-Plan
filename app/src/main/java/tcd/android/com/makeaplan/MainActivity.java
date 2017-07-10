@@ -10,6 +10,7 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -101,9 +102,9 @@ public class MainActivity extends AppCompatActivity
         GlobalMethod.checkNetworkState(this);
 
         initializeBasicComponents();
-        initializeFirebaseAuthentication();
-        initializeFirebaseComponents();
         initializeNavigationDrawerComponents(toolbar);
+        initializeFirebaseComponents();
+        initializeFirebaseAuthentication();
 
         // personal plan action
         FloatingActionButton personalFAB = (FloatingActionButton) findViewById(R.id.fab_personal);
@@ -130,6 +131,12 @@ public class MainActivity extends AppCompatActivity
         addFriendFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // check network requirement
+                if (!GlobalMethod.isNetworkConnected(MainActivity.this)) {
+                    Snackbar.make(findViewById(android.R.id.content), getString(R.string.feature_requires_network_error), Snackbar.LENGTH_LONG).show();
+                    return;
+                }
+                // initialize zxing scanner
                 IntentIntegrator integrator = new IntentIntegrator(MainActivity.this);
                 integrator.initiateScan();
             }
@@ -205,7 +212,6 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
         switch (id) {
             case R.id.nav_current:
                 break;
@@ -335,7 +341,7 @@ public class MainActivity extends AppCompatActivity
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                final FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                 if (firebaseUser == null) {
                     onSignedOutCleanUp();
                     startActivityForResult(
@@ -350,18 +356,34 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     if (userId == null) {
                         userId = firebaseUser.getUid();
-                        // save user to database if this is a new user
-                        if (mUserDatabaseRef.child(userId) == null) {
-                            mUserDatabaseRef.child(userId)
-                                    .setValue(new User(firebaseUser.getDisplayName(), firebaseUser.getEmail()));
-                        }
-                        // retrieve user info
-                        mUserDatabaseRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        // udpate user name and email info
+                        user = new User(firebaseUser.getDisplayName(), firebaseUser.getEmail(), userId);
+                        // update user info on Firebase
+                        mUserDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                user = dataSnapshot.getValue(User.class);
-                                ((TextView)findViewById(R.id.tv_account_name)).setText(user.getName());
-                                ((TextView)findViewById(R.id.tv_account_email)).setText(user.getEmail());
+                                // create user to database if this is a new user
+                                if (!dataSnapshot.hasChild(userId)) {
+                                    mUserDatabaseRef.child(userId).setValue(user);
+                                }
+                                // retrieve user info if this is an existing user
+                                else {
+                                    mUserDatabaseRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            user = dataSnapshot.getValue(User.class);
+                                        }
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {}
+                                    });
+                                }
+                                // update account info in navigation drawer
+                                TextView accountNameTextView = (TextView) findViewById(R.id.tv_account_name);
+                                TextView accountEmailTextView = (TextView) findViewById(R.id.tv_account_email);
+                                if (accountNameTextView != null && accountEmailTextView != null) {
+                                    accountNameTextView.setText(user.getName());
+                                    accountEmailTextView.setText(user.getEmail());
+                                }
                             }
                             @Override
                             public void onCancelled(DatabaseError databaseError) {
@@ -409,6 +431,7 @@ public class MainActivity extends AppCompatActivity
             mUserDatabaseRef.child(userId).child(getString(R.string.firebase_plans)).removeEventListener(mChildEventListener);
             mChildEventListener = null;
         }
+        userId = null;
         planListAdapter.clear();
     }
 
@@ -449,10 +472,21 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void showDownloadProgressDialog() {
-        downloadProgressDialog = new ProgressDialog(this);
-        downloadProgressDialog.setMessage(getString(R.string.downloading_message));
-        downloadProgressDialog.setCanceledOnTouchOutside(false);
-        downloadProgressDialog.show();
+        mUserDatabaseRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChild(getString(R.string.firebase_plans))) {
+                    downloadProgressDialog = new ProgressDialog(MainActivity.this);
+                    downloadProgressDialog.setMessage(getString(R.string.downloading_message));
+                    downloadProgressDialog.setCanceledOnTouchOutside(false);
+                    downloadProgressDialog.show();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
     }
 
 }

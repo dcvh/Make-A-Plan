@@ -99,16 +99,7 @@ public class AddGroupPlanActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // get task name
-                String taskName = ((EditText)findViewById(R.id.edt_task_name)).getText().toString();
-                if (taskName.length() == 0) {
-                    Snackbar.make(view, getString(R.string.name_empty_error), Snackbar.LENGTH_LONG).show();
-                    return;
-                }
-                groupPlan.setName(taskName);
-                // validate location
-                if (groupPlan.getPlaceLatLng() == null) {
-                    Snackbar.make(view, getString(R.string.location_empty_error), Snackbar.LENGTH_LONG).show();
+                if (!validateUserInputs()) {
                     return;
                 }
                 // get group plan ID
@@ -117,8 +108,10 @@ public class AddGroupPlanActivity extends AppCompatActivity {
                 // upload data to Firebase
                 groupPlanDatabaseRef.child(groupPlanId).setValue(groupPlan);
                 createPlanInSingleInvitee(userId, groupPlanId);
-                for (String inviteeId : groupPlan.getInvitees().keySet()) {
-                    createPlanInSingleInvitee(inviteeId, groupPlanId);
+                if (groupPlan.getInvitees() != null) {
+                    for (String inviteeId : groupPlan.getInvitees().keySet()) {
+                        createPlanInSingleInvitee(inviteeId, groupPlanId);
+                    }
                 }
 
                 finish();
@@ -213,6 +206,11 @@ public class AddGroupPlanActivity extends AppCompatActivity {
     }
 
     private void choosePlanLocation() {
+        // check network requirement
+        if (!GlobalMethod.isNetworkConnected(AddGroupPlanActivity.this)) {
+            Snackbar.make(findViewById(android.R.id.content), getString(R.string.feature_requires_network_error), Snackbar.LENGTH_LONG).show();
+            return;
+        }
         // picking a place (using google Places API)
         PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
         try {
@@ -225,18 +223,19 @@ public class AddGroupPlanActivity extends AppCompatActivity {
     }
 
     private void chooseInvitees(final PlanOption option) {
+        // validate list friends
+        if (friendsNameList == null) {
+            Snackbar.make(findViewById(android.R.id.content), getString(R.string.no_friend_error), Snackbar.LENGTH_LONG).show();
+            return;
+        }
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.invitees));
-
         // add a checkbox list
-        builder.setMultiChoiceItems(friendsNameList, checkedItems,
-                new DialogInterface.OnMultiChoiceClickListener() {
+        builder.setMultiChoiceItems(friendsNameList, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                // user checked or unchecked a box
-            }
+            public void onClick(DialogInterface dialog, int which, boolean isChecked) {}
         });
-
         // add OK and Cancel buttons
         builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
             @Override
@@ -248,7 +247,7 @@ public class AddGroupPlanActivity extends AppCompatActivity {
                 for (int i = 0; i < checkedItems.length; i++) {
                     if (checkedItems[i]){
                         invitees.put(friendsIdList[i], friendsNameList[i]);
-                        inviteesStatus.put(friendsIdList[i], 0);
+                        inviteesStatus.put(friendsIdList[i], -1);
                         count++;
                     }
                 }
@@ -259,7 +258,6 @@ public class AddGroupPlanActivity extends AppCompatActivity {
             }
         });
         builder.setNegativeButton(getString(R.string.cancel), null);
-
         // create and show the alert dialog
         AlertDialog dialog = builder.create();
         dialog.show();
@@ -271,13 +269,37 @@ public class AddGroupPlanActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 GenericTypeIndicator<HashMap<String, String>> t = new GenericTypeIndicator<HashMap<String, String>>() {};
                 friendsList = dataSnapshot.getValue(t);
-                friendsIdList = friendsList.keySet().toArray(new String[0]);
-                friendsNameList = friendsList.values().toArray(new String[0]);
-                checkedItems = new boolean[friendsList.size()];         // default value is false
+                if (friendsList != null) {
+                    friendsIdList = friendsList.keySet().toArray(new String[0]);
+                    friendsNameList = friendsList.values().toArray(new String[0]);
+                    checkedItems = new boolean[friendsList.size()];         // default value is false
+                }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {}
         });
+    }
+
+    private boolean validateUserInputs() {
+        // check network requirement
+        if (!GlobalMethod.isNetworkConnected(AddGroupPlanActivity.this)) {
+            Snackbar.make(findViewById(android.R.id.content), getString(R.string.feature_requires_network_error), Snackbar.LENGTH_LONG).show();
+            return false;
+        }
+        // validate task name
+        String taskName = ((EditText)findViewById(R.id.edt_task_name)).getText().toString();
+        if (taskName.length() == 0) {
+            Snackbar.make(findViewById(android.R.id.content), getString(R.string.name_empty_error), Snackbar.LENGTH_LONG).show();
+            return false;
+        }
+        groupPlan.setName(taskName);
+        // validate location
+        if (groupPlan.getPlaceLatLng() == null) {
+            Snackbar.make(findViewById(android.R.id.content), getString(R.string.location_empty_error), Snackbar.LENGTH_LONG).show();
+            return false;
+        }
+
+        return true;
     }
 
     private void createPlanInSingleInvitee(final String inviteeId, final String groupPlanId) {

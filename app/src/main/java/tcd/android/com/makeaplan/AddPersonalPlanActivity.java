@@ -111,7 +111,7 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
                 onBackPressed();
                 break;
             case R.id.done_menu:
-                if (validateUserInputs() == false) {
+                if (!validateUserInputs()) {
                     break;
                 }
                 uploadPlanDataToFirebase();
@@ -187,6 +187,11 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
     }
 
     private boolean validateUserInputs() {
+        // check network requirement
+        if (!GlobalMethod.isNetworkConnected(AddPersonalPlanActivity.this)) {
+            Snackbar.make(findViewById(android.R.id.content), getString(R.string.feature_requires_network_error), Snackbar.LENGTH_LONG).show();
+            return false;
+        }
         // validate task name
         String taskName = ((EditText)findViewById(R.id.edt_task_name)).getText().toString();
         if (taskName.length() == 0) {

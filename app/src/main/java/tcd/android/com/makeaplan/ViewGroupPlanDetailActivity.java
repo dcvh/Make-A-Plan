@@ -114,11 +114,12 @@ public class ViewGroupPlanDetailActivity extends AppCompatActivity {
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             GenericTypeIndicator<HashMap<String, Integer>> t = new GenericTypeIndicator<HashMap<String, Integer>>() {};
                             HashMap<String, Integer> inviteesStatus = dataSnapshot.getValue(t);
-                            inviteesStatus.put(groupPlan.getOwner(), switchStatus.isChecked() ? 1 : 0);
+                            inviteesStatus.put(userId, switchStatus.isChecked() ? 1 : 0);
                             groupPlan.setInviteesStatus(inviteesStatus);
                             groupPlanDatabaseRef.child(groupPlan.getId()).child(getString(R.string.firebase_invitees_status))
                                     .setValue(inviteesStatus);
 
+                            // return udpated status to MainActivity
                             Intent resultIntent = new Intent();
                             resultIntent.putExtra(getString(R.string.firebase_invitees_status), switchStatus.isChecked() ? 1 : 0);
                             setResult(Activity.RESULT_OK, resultIntent);
@@ -127,6 +128,9 @@ public class ViewGroupPlanDetailActivity extends AppCompatActivity {
                         @Override
                         public void onCancelled(DatabaseError databaseError) {}
                     });
+        }
+        else {
+            onBackPressed();
         }
     }
 
@@ -169,6 +173,7 @@ public class ViewGroupPlanDetailActivity extends AppCompatActivity {
                     // set owner attendance status
                     if (invitee.getKey().equals(userId)) {
                         boolean isGoing = inviteesStatus.get(invitee.getKey()) == 1;
+                        ((TextView)findViewById(R.id.tv_status)).setVisibility(View.VISIBLE);
                         switchStatus.setVisibility(View.VISIBLE);
                         switchStatus.setChecked(isGoing);
                     }

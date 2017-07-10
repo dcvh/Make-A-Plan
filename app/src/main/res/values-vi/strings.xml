@@ -11,13 +11,15 @@
     <string name="under_development_message">Tính năng này đang trong giai đoạn phát triển.</string>
     <string name="become_friend_message">đã trở thành bạn bè của bạn.</string>
     <string name="downloading_message">Xin hãy chờ quá trình tải trong giây lát.</string>
-    <string name="check_network_connection_message">Ứng dụng yêu cầu có kết nối mạng để hoạt động.</string>
 
     <!--errors-->
     <string name="name_empty_error">Bạn không thể bỏ trống tên công việc.</string>
     <string name="note_empty_error">Bạn không thể bỏ trống nội dung công việc.</string>
     <string name="location_empty_error">Bạn không thể bỏ trống địa điểm của kế hoạch.</string>
     <string name="create_qr_code_error">Xảy ra lỗi không mong muốn khi tạo mã QR.</string>
+    <string name="app_requires_network_error">Ứng dụng yêu cầu có kết nối mạng để hoạt động.</string>
+    <string name="feature_requires_network_error">Tính năng yêu cầu có kết nối mạng để hoạt động.</string>
+    <string name="no_friend_error">Hiện tại bạn chưa kết bạn với người dùng nào.</string>
 
     <!--navigation drawer menus-->
     <string name="current_plans">Kế hoạch hiện tại</string>
@@ -68,7 +70,5 @@
 
     <!-- Strings related to Settings -->
     <string name="pref_date_format_title">Định dạng ngày</string>
-
-    <!-- Strings related to Settings -->
     <string name="pref_time_format_title">Định dạng thời gian</string>
 </resources>

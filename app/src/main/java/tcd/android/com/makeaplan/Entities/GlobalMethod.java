@@ -50,7 +50,7 @@ public final class GlobalMethod {
     public static void checkNetworkState(final Context context) {
         if (!isNetworkConnected(context)) {
             checkNetworkDialog = new AlertDialog.Builder(context).create();
-            checkNetworkDialog.setMessage(context.getResources().getString(R.string.check_network_connection_message));
+            checkNetworkDialog.setMessage(context.getResources().getString(R.string.app_requires_network_error));
             checkNetworkDialog.setCancelable(false);
             checkNetworkDialog.setButton(Dialog.BUTTON_NEGATIVE, context.getResources().getString(R.string.quit),
                             new DialogInterface.OnClickListener() {
@@ -77,7 +77,7 @@ public final class GlobalMethod {
     public static String getDateFromMilliseconds(long millis, Context context) {
         // get selected format from settings
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        String dateFormatPref = sharedPref.getString(SettingsActivity.KEY_PREF_DATE_FORMAT, "");
+        String dateFormatPref = sharedPref.getString(SettingsActivity.KEY_PREF_DATE_FORMAT, context.getString(R.string.pref_date_format_default));
         // return result according to format
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(millis);
@@ -87,7 +87,7 @@ public final class GlobalMethod {
     public static String getTimeFromMilliseconds(long millis, Context context) {
         // get selected format from settings
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        String timeFormatPref = sharedPref.getString(SettingsActivity.KEY_PREF_TIME_FORMAT, "");
+        String timeFormatPref = sharedPref.getString(SettingsActivity.KEY_PREF_TIME_FORMAT, context.getString(R.string.pref_time_format_default));
         // return result according to format
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(millis);
