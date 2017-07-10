@@ -138,14 +138,14 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
         personalPlan.setId(personalPlanId);
         // upload image to firebase
         if (planImageView.getVisibility() == View.VISIBLE) {
+            Snackbar.make(findViewById(android.R.id.content), getString(R.string.uploading_message), Snackbar.LENGTH_LONG).show();
+            // start uploading image
             StorageReference photoRef = mPlanImageStorageRef.child(selectedImageUri.getLastPathSegment());
             UploadTask uploadTask = photoRef.putFile(selectedImageUri);
             uploadTask.addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     @SuppressWarnings("VisibleForTests") Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                    Snackbar.make(findViewById(android.R.id.content), getString(R.string.uploading_message), Snackbar.LENGTH_LONG)
-                            .show();
                     personalPlan.setImageUrl(downloadUrl.toString());
                     // upload data to Firebase
                     personalPlanDatabaseRef.child(personalPlanId).setValue(personalPlan);
