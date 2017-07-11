@@ -21,6 +21,7 @@
     <string name="app_requires_network_error">Cannot connect to server. An internet connection is required.</string>
     <string name="feature_requires_network_error">This feature requires an internet connection to run.</string>
     <string name="no_friend_error">Your friends list is empty.</string>
+    <string name="require_camera_permission">This feature requires camera permission to run.</string>
 
     <!--navigation drawer menus-->
     <string name="current_plans">Current Plans</string>

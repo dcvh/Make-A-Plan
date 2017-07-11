@@ -20,6 +20,7 @@
     <string name="app_requires_network_error">Ứng dụng yêu cầu có kết nối mạng để hoạt động.</string>
     <string name="feature_requires_network_error">Tính năng yêu cầu có kết nối mạng để hoạt động.</string>
     <string name="no_friend_error">Hiện tại bạn chưa kết bạn với người dùng nào.</string>
+    <string name="require_camera_permission">Tính năng yêu cầu có quyền truy cập máy ảnh để hoạt động.</string>
 
     <!--navigation drawer menus-->
     <string name="current_plans">Kế hoạch hiện tại</string>
