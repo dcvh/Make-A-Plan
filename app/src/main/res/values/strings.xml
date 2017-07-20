@@ -4,7 +4,7 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <!--messages-->
+    <!--messages and warnings-->
     <string name="welcome_message">Sign in succesfully. Welcome to Make A Plan!</string>
     <string name="cancel_sign_in_message">Sign in canceled</string>
     <string name="remove_image_warning">Are you sure you want to remove this image?</string>
@@ -21,54 +21,61 @@
     <string name="app_requires_network_error">Cannot connect to server. An internet connection is required.</string>
     <string name="feature_requires_network_error">This feature requires an internet connection to run.</string>
     <string name="no_friend_error">Your friends list is empty.</string>
-    <string name="require_camera_permission">This feature requires camera permission to run.</string>
+    <string name="require_camera_permission_error">This feature requires camera permission to run.</string>
+    <string name="no_app_handle_intent_error">No application can handle your request.</string>
 
     <!--navigation drawer menus-->
-    <string name="current_plans">Current Plans</string>
-    <string name="overdue_plans">Overdue Plans</string>
-    <string name="settings">Settings</string>
-    <string name="my_account">My account</string>
-    <string name="help_feeback">Help and feedback</string>
+    <string name="current_plans_menu">Current Plans</string>
+    <string name="overdue_plans_menu">Overdue Plans</string>
+    <string name="settings_menu">Settings</string>
+    <string name="help_feeback_menu">Help and feedback</string>
+    <string name="my_account_menu">My account</string>
 
     <!--menus-->
-    <string name="sign_out">Sign out</string>
-    <string name="take_photo">Take photo</string>
-    <string name="gallery">Gallery</string>
-    <string name="reminder">Reminder</string>
-    <string name="edit">Edit</string>
+    <string name="sign_out_menu">Sign out</string>
+    <string name="take_photo_menu">Take photo</string>
+    <string name="gallery_menu">Gallery</string>
+    <string name="reminder_menu">Reminder</string>
+    <string name="edit_menu">Edit</string>
 
     <!--buttons-->
-    <string name="personal">Personal</string>
-    <string name="group">Group</string>
-    <string name="add_friend">Add friend</string>
-    <string name="done">Done</string>
-    <string name="navigate">Navigate</string>
-    <string name="yes">Yes</string>
-    <string name="ok" translatable="false">OK</string>
-    <string name="cancel">Cancel</string>
-    <string name="quit">Quit</string>
-    <string name="try_again">Try again</string>
+    <string name="group_button">Group</string>
+    <string name="personal_button">Personal</string>
+    <string name="add_friend_button">Add friend</string>
+    <string name="done_button">Done</string>
+    <string name="navigate_button">Navigate</string>
+    <string name="yes_button">Yes</string>
+    <string name="ok_button" translatable="false">OK</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="quit_button">Quit</string>
+    <string name="try_again_button">Try again</string>
+
+    <!--label not translatable-->
+    <string name="personal" translatable="false">Personal</string>
+    <string name="group" translatable="false">Group</string>
+    <string name="account_id" translatable="false">Account ID</string>
+    <string name="my_account" translatable="false">My account</string>
 
     <!--labels-->
-    <string name="task">Task</string>
-    <string name="group_plan">Group plan</string>
-    <string name="personal_plan">Personal plan</string>
-    <string name="task_name_example">e.g. University of Science</string>
-    <string name="due_date">Due date</string>
-    <string name="time">Time</string>
-    <string name="location">Location</string>
-    <string name="invitees">Invitees</string>
-    <string name="invitee">invitee(s)</string>
-    <string name="no_invitee">0 invitee</string>
-    <string name="choose_invitees">Choose your invitees</string>
-    <string name="going">Going?</string>
-    <string name="note">Note</string>
-    <string name="plan_image">Plan image</string>
-    <string name="account_name">Account Name</string>
-    <string name="email">Email</string>
-    <string name="number_plans">Plans created</string>
-    <string name="account_id">Account ID</string>
-    <string name="complete_action_using">Complete action using</string>
+    <string name="task_label">Task</string>
+    <string name="group_plan_label">Group plan</string>
+    <string name="personal_plan_label">Personal plan</string>
+    <string name="task_name_example_label">e.g. University of Science</string>
+    <string name="due_date_label">Due date</string>
+    <string name="time_label">Time</string>
+    <string name="location_label">Location</string>
+    <string name="invitees_label">Invitees</string>
+    <string name="invitee_label">invitee(s)</string>
+    <string name="no_invitee_label">0 invitee</string>
+    <string name="choose_invitees_label">Choose your invitees</string>
+    <string name="going_label">Going?</string>
+    <string name="note_label">Note</string>
+    <string name="plan_image_label">Plan image</string>
+    <string name="account_name_label">Account Name</string>
+    <string name="email_label">Email</string>
+    <string name="number_plans_label">Plans created</string>
+    <string name="account_id_label">Account ID</string>
+    <string name="complete_action_using_label">Complete action using</string>
     <string name="title_activity_settings">Settings</string>
 
     <!--firebase child nodes-->

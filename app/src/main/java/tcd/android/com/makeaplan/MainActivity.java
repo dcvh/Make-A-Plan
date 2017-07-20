@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity
                     IntentIntegrator integrator = new IntentIntegrator(MainActivity.this);
                     integrator.initiateScan();
                 } else {
-                    Snackbar.make(findViewById(android.R.id.content), getString(R.string.require_camera_permission), Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(findViewById(android.R.id.content), getString(R.string.require_camera_permission_error), Snackbar.LENGTH_LONG).show();
                 }
                 break;
             }

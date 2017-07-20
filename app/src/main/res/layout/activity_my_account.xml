@@ -13,7 +13,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/account_name"
+        android:text="@string/account_name_label"
         android:textStyle="bold"
         android:textAllCaps="true"
         android:textColor="@color/colorAccent"
@@ -30,7 +30,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/email"
+        android:text="@string/email_label"
         android:textStyle="bold"
         android:textAllCaps="true"
         android:textColor="@color/colorAccent"
@@ -64,7 +64,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/account_id"
+        android:text="@string/account_id_label"
         android:textStyle="bold"
         android:textAllCaps="true"
         android:textColor="@color/colorAccent"

@@ -54,7 +54,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:layout_marginBottom="16dp"
-            android:text="@string/plan_image"
+            android:text="@string/plan_image_label"
             android:textAllCaps="true"
             android:textColor="@color/colorAccent"
             android:textStyle="bold"
@@ -72,7 +72,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:layout_marginBottom="16dp"
-            android:text="@string/note"
+            android:text="@string/note_label"
             android:textAllCaps="true"
             android:textColor="@color/colorAccent"
             android:textStyle="bold" />
@@ -85,7 +85,7 @@
             android:paddingRight="8dp"
             android:paddingBottom="32dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            tools:text="@string/note" />
+            tools:text="@string/note_label" />
 
     </LinearLayout>
 

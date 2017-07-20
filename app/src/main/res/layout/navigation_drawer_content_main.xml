@@ -44,7 +44,7 @@
         fab:menu_colorNormal="@color/colorAccent"
         fab:menu_colorPressed="@color/colorAccent"
         fab:menu_colorRipple="@color/colorAccent"
-        fab:menu_fab_label="Cancel"
+        fab:menu_fab_label="@string/cancel_button"
         fab:menu_icon="@drawable/fab_add"
         fab:menu_labels_ellipsize="end"
         fab:menu_labels_singleLine="true"
@@ -55,7 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/fab_add"
-            fab:fab_label="@string/personal"
+            fab:fab_label="@string/personal_button"
             fab:fab_size="mini" />
 
         <com.github.clans.fab.FloatingActionButton
@@ -63,7 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/fab_add"
-            fab:fab_label="@string/group"
+            fab:fab_label="@string/group_button"
             fab:fab_size="mini" />
 
         <com.github.clans.fab.FloatingActionButton
@@ -71,7 +71,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/fab_add"
-            fab:fab_label="@string/add_friend"
+            fab:fab_label="@string/add_friend_button"
             fab:fab_size="mini" />
 
     </com.github.clans.fab.FloatingActionMenu>

@@ -169,7 +169,7 @@ public class ViewGroupPlanDetailActivity extends AppCompatActivity {
         HashMap<String, String> invitees = groupPlan.getInvitees();
         if (invitees != null) {
             // attendance
-            String attendance = invitees.size() + " " + getString(R.string.invitee);
+            String attendance = invitees.size() + " " + getString(R.string.invitee_label);
             ((TextView) findViewById(R.id.tv_group_plan_attendance)).setText(attendance);
             // invitees list
             ListView inviteesListView = (ListView) findViewById(R.id.lv_group_plan_invitees);

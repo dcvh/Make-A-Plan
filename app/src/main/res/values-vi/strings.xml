@@ -20,54 +20,55 @@
     <string name="app_requires_network_error">Ứng dụng yêu cầu có kết nối mạng để hoạt động.</string>
     <string name="feature_requires_network_error">Tính năng yêu cầu có kết nối mạng để hoạt động.</string>
     <string name="no_friend_error">Hiện tại bạn chưa kết bạn với người dùng nào.</string>
-    <string name="require_camera_permission">Tính năng yêu cầu có quyền truy cập máy ảnh để hoạt động.</string>
+    <string name="require_camera_permission_error">Tính năng yêu cầu có quyền truy cập máy ảnh để hoạt động.</string>
+    <string name="no_app_handle_intent_error">Không có ứng dụng hỗ trợ yêu cầu của bạn.</string>
 
     <!--navigation drawer menus-->
-    <string name="current_plans">Kế hoạch hiện tại</string>
-    <string name="overdue_plans">Kế hoạch quá hạn</string>
-    <string name="settings">Cài đặt</string>
-    <string name="my_account">Tài khoản của tôi</string>
-    <string name="help_feeback">Giúp đỡ và phản hồi</string>
+    <string name="current_plans_menu">Kế hoạch hiện tại</string>
+    <string name="overdue_plans_menu">Kế hoạch quá hạn</string>
+    <string name="settings_menu">Cài đặt</string>
+    <string name="help_feeback_menu">Giúp đỡ và phản hồi</string>
+    <string name="my_account_menu">Tài khoản của tôi</string>
 
     <!--menus-->
-    <string name="sign_out">Đăng xuất</string>
-    <string name="take_photo">Chụp ảnh</string>
-    <string name="gallery">Chọn ảnh</string>
-    <string name="reminder">Nhắc nhở</string>
-    <string name="edit">Chỉnh sửa</string>
+    <string name="sign_out_menu">Đăng xuất</string>
+    <string name="take_photo_menu">Chụp ảnh</string>
+    <string name="gallery_menu">Chọn ảnh</string>
+    <string name="reminder_menu">Nhắc nhở</string>
+    <string name="edit_menu">Chỉnh sửa</string>
 
     <!--buttons-->
-    <string name="personal">Cá nhân</string>
-    <string name="group">Nhóm</string>
-    <string name="add_friend">Kết bạn</string>
-    <string name="done">Xong</string>
-    <string name="navigate">Điều hướng</string>
-    <string name="yes">Đồng ý</string>
-    <string name="cancel">Hủy bỏ</string>
-    <string name="quit">Thoát</string>
-    <string name="try_again">Thử lại</string>
+    <string name="group_button">Nhóm</string>
+    <string name="personal_button">Cá nhân</string>
+    <string name="add_friend_button">Kết bạn</string>
+    <string name="done_button">Xong</string>
+    <string name="navigate_button">Điều hướng</string>
+    <string name="yes_button">Đồng ý</string>
+    <string name="cancel_button">Hủy bỏ</string>
+    <string name="quit_button">Thoát</string>
+    <string name="try_again_button">Thử lại</string>
 
     <!--labels-->
-    <string name="task">Công việc</string>
-    <string name="group_plan">Kế hoạch nhóm</string>
-    <string name="personal_plan">Kế hoạch cá nhân</string>
-    <string name="task_name_example">vd: Đại học Khoa học Tự nhiên</string>
-    <string name="due_date">Ngày hạn</string>
-    <string name="time">Thời gian</string>
-    <string name="location">Địa điểm</string>
-    <string name="invitees">Người tham gia</string>
-    <string name="invitee">người tham gia</string>
-    <string name="no_invitee">0 người tham gia</string>
-    <string name="choose_invitees">Chọn người tham gia</string>
-    <string name="going">Tham gia?</string>
-    <string name="note">Nội dung</string>
-    <string name="plan_image">Ảnh kế hoạch</string>
-    <string name="account_name">Tên tài khoản</string>
-    <string name="email">Email</string>
-    <string name="number_plans">Số kế hoạch đã tạo</string>
-    <string name="account_id">Tài khoản ID</string>
-    <string name="complete_action_using">Hoàn thành công việc bằng</string>
-    <string name="title_activity_settings">Cài đặt</string>
+    <string name="task_label">Công việc</string>
+    <string name="group_plan_label">Kế hoạch nhóm</string>
+    <string name="personal_plan_label">Kế hoạch cá nhân</string>
+    <string name="task_name_example_label">vd: Đại học Khoa học Tự nhiên</string>
+    <string name="due_date_label">Ngày hạn</string>
+    <string name="time_label">Thời gian</string>
+    <string name="location_label">Địa điểm</string>
+    <string name="invitees_label">Người tham gia</string>
+    <string name="invitee_label">người tham gia</string>
+    <string name="no_invitee_label">0 người tham gia</string>
+    <string name="choose_invitees_label">Chọn người tham gia</string>
+    <string name="going_label">Tham gia?</string>
+    <string name="note_label">Nội dung</string>
+    <string name="plan_image_label">Ảnh kế hoạch</string>
+    <string name="account_name_label">Tên tài khoản</string>
+    <string name="email_label">Email</string>
+    <string name="number_plans_label">Số kế hoạch đã tạo</string>
+    <string name="account_id_label">Tài khoản ID</string>
+    <string name="complete_action_using_label">Hoàn thành công việc bằng</string>
+    <string name="title_activity_settings_label">Cài đặt</string>
 
     <!-- Strings related to Settings -->
     <string name="pref_date_format_title">Định dạng ngày</string>

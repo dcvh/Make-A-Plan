@@ -25,6 +25,11 @@ import tcd.android.com.makeaplan.ViewGroupPlanDetailActivity;
 
 public final class GlobalMethod {
 
+    public static final String GROUP_LABEL = "group";
+    public static final String PERSONAL_LABEL = "personal";
+    public static final String ACCOUNT_ID_LABEL = "accountId";
+    public static final String USER_LABEL = "user";
+
     private static AlertDialog checkNetworkDialog = null;
 
     public GlobalMethod() {
@@ -33,7 +38,7 @@ public final class GlobalMethod {
     public static void showUnderDevelopmentDialog(Context context) {
         new AlertDialog.Builder(context)
                 .setMessage(R.string.under_development_message)
-                .setPositiveButton(context.getString(R.string.ok), null)
+                .setPositiveButton(context.getString(R.string.ok_button), null)
                 .show();
     }
 
@@ -52,13 +57,13 @@ public final class GlobalMethod {
             checkNetworkDialog = new AlertDialog.Builder(context).create();
             checkNetworkDialog.setMessage(context.getString(R.string.app_requires_network_error));
             checkNetworkDialog.setCancelable(false);
-            checkNetworkDialog.setButton(Dialog.BUTTON_NEGATIVE, context.getString(R.string.quit),
+            checkNetworkDialog.setButton(Dialog.BUTTON_NEGATIVE, context.getString(R.string.quit_button),
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                     ((Activity)context).finish();
                                 }
                             });
-            checkNetworkDialog.setButton(Dialog.BUTTON_POSITIVE, context.getString(R.string.try_again),
+            checkNetworkDialog.setButton(Dialog.BUTTON_POSITIVE, context.getString(R.string.try_again_button),
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
                             checkNetworkState(context);

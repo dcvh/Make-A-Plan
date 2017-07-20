@@ -3,22 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/reminder_menu"
-        android:title="@string/reminder"
+        android:title="@string/reminder_menu"
         android:icon="@drawable/ic_reminder_white_24px"
         app:showAsAction="always"/>
     <item
         android:id="@+id/take_photo_menu"
-        android:title="@string/settings"
+        android:title="@string/settings_menu"
         android:icon="@drawable/ic_camera_white_24px"
         app:showAsAction="always"/>
     <item
         android:id="@+id/gallery_menu"
-        android:title="@string/gallery"
+        android:title="@string/gallery_menu"
         android:icon="@drawable/ic_gallery_white_24px"
         app:showAsAction="always" />
     <item
         android:id="@+id/done_menu"
-        android:title="@string/done"
+        android:title="@string/done_button"
         android:icon="@drawable/ic_done_white_24px"
         app:showAsAction="always" />
 </menu>

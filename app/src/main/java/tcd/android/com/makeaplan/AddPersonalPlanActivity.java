@@ -6,12 +6,15 @@ import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -43,6 +46,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -56,6 +60,7 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
 
     private static final String TAG_LOG = "AddPersonalPlanActivity";
     private static final int RC_PHOTO_PICKER = 1;
+    private static final int RC_TAKE_PHOTO = 2;
 
     // firebase components
     private FirebaseDatabase firebaseDatabase;
@@ -87,11 +92,11 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
             public void onClick(View v) {
                 AlertDialog.Builder adb = new AlertDialog.Builder(AddPersonalPlanActivity.this)
                         .setMessage(R.string.remove_image_warning)
-                        .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
+                        .setPositiveButton(getString(R.string.yes_button), new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 planImageView.setVisibility(View.GONE);
                             }
-                        }).setNegativeButton(getString(R.string.cancel), null);
+                        }).setNegativeButton(getString(R.string.cancel_button), null);
                 adb.show();
             }
         });
@@ -121,13 +126,24 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
                 choosePersonalPlanDateAndTime();
                 break;
             case R.id.take_photo_menu:
-                GlobalMethod.showUnderDevelopmentDialog(this);
+                selectedImageUri = Uri.fromFile(new File(getExternalFilesDir(null), "image.jpg"));
+                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, selectedImageUri);
+                if (cameraIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivityForResult(Intent.createChooser(cameraIntent, getString(R.string.complete_action_using_label)), RC_TAKE_PHOTO);
+                } else {
+                    Snackbar.make(findViewById(android.R.id.content), getString(R.string.no_app_handle_intent_error), Snackbar.LENGTH_LONG).show();
+                }
                 break;
             case R.id.gallery_menu:
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.setType("image/jpeg");
                 intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                startActivityForResult(Intent.createChooser(intent, getString(R.string.complete_action_using)), RC_PHOTO_PICKER);
+                if (intent.resolveActivity(getPackageManager()) != null) {
+                    startActivityForResult(Intent.createChooser(intent, getString(R.string.complete_action_using_label)), RC_PHOTO_PICKER);
+                } else {
+                    Snackbar.make(findViewById(android.R.id.content), getString(R.string.no_app_handle_intent_error), Snackbar.LENGTH_LONG).show();
+                }
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -274,6 +290,15 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
+            case RC_TAKE_PHOTO:
+                Log.e("aaa", "onActivityResult: ");
+                if (resultCode == RESULT_OK) {
+                    Toast.makeText(this, selectedImageUri.toString(), Toast.LENGTH_SHORT).show();
+                    // display selected image
+                    Glide.with(this).load(selectedImageUri).into(planImageView);
+                    planImageView.setVisibility(View.VISIBLE);
+                }
+                break;
             case RC_PHOTO_PICKER:
                 if (resultCode == RESULT_OK) {
                     selectedImageUri = data.getData();

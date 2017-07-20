@@ -34,7 +34,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/task"
+                android:text="@string/task_label"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="@color/colorAccent" />
 
@@ -47,13 +47,13 @@
                 android:textColorHint="#BDBDBD"
                 android:inputType="textMultiLine"
                 android:lines="2"
-                android:hint="@string/task_name_example"
+                android:hint="@string/task_name_example_label"
                 android:backgroundTint="@color/colorAccent"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/group_plan"
+                android:text="@string/group_plan_label"
                 android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                 android:textColor="@color/colorAccent"
                 android:layout_marginTop="16dp"/>

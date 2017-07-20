@@ -81,14 +81,14 @@ public class AddGroupPlanActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 PlanOption option = ((PlanOption)parent.getAdapter().getItem(position));
                 String title = option.getTitle();
-                if (title.equals(getString(R.string.due_date))) {
+                if (title.equals(getString(R.string.due_date_label))) {
                     choosePlanDueDate(option);
-                } else if (title.equals(getString(R.string.time))) {
+                } else if (title.equals(getString(R.string.time_label))) {
                     choosePlanTime(option);
-                } else if (title.equals(getString(R.string.location))) {
+                } else if (title.equals(getString(R.string.location_label))) {
                     locationOptionIndex = position;
                     choosePlanLocation();
-                } else if (title.equals(getString(R.string.invitees))) {
+                } else if (title.equals(getString(R.string.invitees_label))) {
                     chooseInvitees(option);
                 }
             }
@@ -148,19 +148,19 @@ public class AddGroupPlanActivity extends AppCompatActivity {
         optionListAdapter = new PlanOptionListAdapter(this);
         optionListView.setAdapter(optionListAdapter);
         // due date option
-        optionListAdapter.add(new PlanOption(getString(R.string.due_date),
+        optionListAdapter.add(new PlanOption(getString(R.string.due_date_label),
                 GlobalMethod.getDateFromMilliseconds(selectedDate.getTimeInMillis(), this),
                 R.drawable.ic_date_black_48px));
         // time option
-        optionListAdapter.add(new PlanOption(getString(R.string.time),
+        optionListAdapter.add(new PlanOption(getString(R.string.time_label),
                 GlobalMethod.getTimeFromMilliseconds(selectedDate.getTimeInMillis(), this),
                 R.drawable.ic_time_black_48px));
         // location option
-        optionListAdapter.add(new PlanOption(getString(R.string.location),
+        optionListAdapter.add(new PlanOption(getString(R.string.location_label),
                 "", R.drawable.ic_location_black_48px));
         // friends option
-        optionListAdapter.add(new PlanOption(getString(R.string.invitees),
-                getString(R.string.no_invitee), R.drawable.ic_invitee_black_48px));
+        optionListAdapter.add(new PlanOption(getString(R.string.invitees_label),
+                getString(R.string.no_invitee_label), R.drawable.ic_invitee_black_48px));
     }
 
     private void choosePlanDueDate(final PlanOption option) {
@@ -230,14 +230,14 @@ public class AddGroupPlanActivity extends AppCompatActivity {
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.invitees));
+        builder.setTitle(getString(R.string.invitees_label));
         // add a checkbox list
         builder.setMultiChoiceItems(friendsNameList, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which, boolean isChecked) {}
         });
         // add OK and Cancel buttons
-        builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // user clicked OK
@@ -253,11 +253,11 @@ public class AddGroupPlanActivity extends AppCompatActivity {
                 }
                 groupPlan.setInvitees(invitees);
                 groupPlan.setInviteesStatus(inviteesStatus);
-                option.setValue(String.valueOf(count) + " " + getString(R.string.invitee));
+                option.setValue(String.valueOf(count) + " " + getString(R.string.invitee_label));
                 ((BaseAdapter)optionListView.getAdapter()).notifyDataSetChanged();
             }
         });
-        builder.setNegativeButton(getString(R.string.cancel), null);
+        builder.setNegativeButton(getString(R.string.cancel_button), null);
         // create and show the alert dialog
         AlertDialog dialog = builder.create();
         dialog.show();

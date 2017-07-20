@@ -82,7 +82,10 @@ public class PlanAdapter extends RecyclerView.Adapter<PlanAdapter.NumberViewHold
         holder.planNameTextView.setText(plan.getName());
         holder.planDateTextView.setText(GlobalMethod.getDateFromMilliseconds(plan.getDateTime(), context));
         holder.planTimeTextView.setText(GlobalMethod.getTimeFromMilliseconds(plan.getDateTime(), context));
-        holder.planTagTextView.setText(plan.getTag());
+        // translate tag (if needed)
+        String tag = plan.getTag().equals(context.getString(R.string.group)) ?
+                context.getString(R.string.group_button) : context.getString(R.string.personal_button);
+        holder.planTagTextView.setText(tag);
         // status icon
         if (plan.getTag().equals(context.getString(R.string.group))) {
             holder.planTagIconImageView.setImageResource(R.drawable.ic_dot_green_512px);

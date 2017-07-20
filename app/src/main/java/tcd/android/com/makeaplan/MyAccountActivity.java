@@ -63,7 +63,7 @@ public class MyAccountActivity extends AppCompatActivity {
             case R.id.edit_menu:
                 new AlertDialog.Builder(MyAccountActivity.this)
                         .setMessage(R.string.under_development_message)
-                        .setPositiveButton(getString(R.string.ok), null)
+                        .setPositiveButton(getString(R.string.ok_button), null)
                         .show();
                 break;
             default:
