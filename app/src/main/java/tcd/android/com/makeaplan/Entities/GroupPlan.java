@@ -17,6 +17,7 @@ public class GroupPlan extends Plan implements Serializable {
     private String placeName;
     private String placeLatLng;
     private String placeAddress;
+    private String placeId;
     private HashMap<String, String> invitees;
     private HashMap<String, Integer> inviteesStatus;
 
@@ -57,6 +58,14 @@ public class GroupPlan extends Plan implements Serializable {
 
     public void setPlaceAddress(String placeAddress) {
         this.placeAddress = placeAddress;
+    }
+
+    public String getPlaceId() {
+        return placeId;
+    }
+
+    public void setPlaceId(String placeId) {
+        this.placeId = placeId;
     }
 
     public HashMap<String, String> getInvitees() {

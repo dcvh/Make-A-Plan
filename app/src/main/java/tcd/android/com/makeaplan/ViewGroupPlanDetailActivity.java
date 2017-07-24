@@ -19,6 +19,7 @@ import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.database.DataSnapshot;
@@ -71,8 +72,11 @@ public class ViewGroupPlanDetailActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.tv_navigate)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
-                        Uri.parse("http://maps.google.com/maps?daddr=" + groupPlan.getPlaceLatLng()));
+                String mapUrl = "https://www.google.com/maps/search/?api=1&query=" + groupPlan.getPlaceLatLng();
+                if (groupPlan.getPlaceId() != null) {
+                    mapUrl += "&query_place_id=" + groupPlan.getPlaceId();
+                }
+                Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(mapUrl));
                 startActivity(intent);
             }
         });

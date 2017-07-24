@@ -1,17 +1,23 @@
 package tcd.android.com.makeaplan;
 
+import android.*;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -45,6 +51,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.zxing.integration.android.IntentIntegrator;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -61,6 +68,7 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
     private static final String TAG_LOG = "AddPersonalPlanActivity";
     private static final int RC_PHOTO_PICKER = 1;
     private static final int RC_TAKE_PHOTO = 2;
+    private static final int RC_PERMISSION_CAMERA = 3;
 
     // firebase components
     private FirebaseDatabase firebaseDatabase;
@@ -126,13 +134,17 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
                 choosePersonalPlanDateAndTime();
                 break;
             case R.id.take_photo_menu:
-                selectedImageUri = Uri.fromFile(new File(getExternalFilesDir(null), "image.jpg"));
-                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, selectedImageUri);
-                if (cameraIntent.resolveActivity(getPackageManager()) != null) {
-                    startActivityForResult(Intent.createChooser(cameraIntent, getString(R.string.complete_action_using_label)), RC_TAKE_PHOTO);
-                } else {
-                    Snackbar.make(findViewById(android.R.id.content), getString(R.string.no_app_handle_intent_error), Snackbar.LENGTH_LONG).show();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    try {
+                        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)
+                                != PackageManager.PERMISSION_GRANTED) {
+                            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA}, RC_PERMISSION_CAMERA);
+                        } else {
+                            initializeCamera();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
                 break;
             case R.id.gallery_menu:
@@ -155,7 +167,7 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
         personalPlan.setId(personalPlanId);
         // upload image to firebase
         if (planImageView.getVisibility() == View.VISIBLE) {
-            Snackbar.make(findViewById(android.R.id.content), getString(R.string.uploading_message), Snackbar.LENGTH_LONG).show();
+            Snackbar.make(findViewById(android.R.id.content), getString(R.string.uploading_message), Snackbar.LENGTH_INDEFINITE).show();
             // start uploading image
             StorageReference photoRef = mPlanImageStorageRef.child(selectedImageUri.getLastPathSegment());
             UploadTask uploadTask = photoRef.putFile(selectedImageUri);
@@ -201,6 +213,17 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
 
         firebaseStorage = FirebaseStorage.getInstance();
         mPlanImageStorageRef = firebaseStorage.getReference().child(getString(R.string.firebase_personal_plan));
+    }
+
+    private void initializeCamera() {
+        selectedImageUri = Uri.fromFile(new File(getExternalFilesDir(null), "image.jpg"));
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, selectedImageUri);
+        if (cameraIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(Intent.createChooser(cameraIntent, getString(R.string.complete_action_using_label)), RC_TAKE_PHOTO);
+        } else {
+            Snackbar.make(findViewById(android.R.id.content), getString(R.string.no_app_handle_intent_error), Snackbar.LENGTH_LONG).show();
+        }
     }
 
     private boolean validateUserInputs() {
@@ -293,7 +316,6 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
             case RC_TAKE_PHOTO:
                 Log.e("aaa", "onActivityResult: ");
                 if (resultCode == RESULT_OK) {
-                    Toast.makeText(this, selectedImageUri.toString(), Toast.LENGTH_SHORT).show();
                     // display selected image
                     Glide.with(this).load(selectedImageUri).into(planImageView);
                     planImageView.setVisibility(View.VISIBLE);
@@ -308,5 +330,21 @@ public class AddPersonalPlanActivity extends AppCompatActivity {
                 }
                 break;
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case RC_PERMISSION_CAMERA: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    initializeCamera();
+                } else {
+                    Snackbar.make(findViewById(android.R.id.content), getString(R.string.require_camera_permission_error), Snackbar.LENGTH_LONG).show();
+                }
+                break;
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }

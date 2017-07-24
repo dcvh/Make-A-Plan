@@ -461,6 +461,7 @@ public class MainActivity extends AppCompatActivity
         }
         userId = null;
         mPlanAdapter.clear();
+        mPlanAdapter.notifyDataSetChanged();
     }
 
     private void createPlanInListView(DataSnapshot dataSnapshot) {
